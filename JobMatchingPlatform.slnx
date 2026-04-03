@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/services/">
+    <Project Path="src/services/AIService/AIService.csproj" />
+    <Project Path="src/services/ApiGateway/ApiGateway.csproj" />
+    <Project Path="src/services/ApplicationService/ApplicationService.csproj" />
+    <Project Path="src/services/AuthService/AuthService.csproj" />
+    <Project Path="src/services/JobService/JobService.csproj" />
+    <Project Path="src/services/ProfileService/ProfileService.csproj" />
+  </Folder>
+  <Folder Name="/src/shared/">
+    <Project Path="src/shared/SharedKernel/SharedKernel.csproj" />
+  </Folder>
+</Solution>
