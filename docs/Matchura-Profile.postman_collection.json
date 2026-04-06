@@ -1,0 +1,447 @@
+{
+  "info": {
+    "name": "Matchura Profile API",
+    "_postman_id": "matchura-profile-001",
+    "description": "Profile management endpoints for candidates and employers. Requires JWT token from Auth service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5002"
+    },
+    {
+      "key": "auth_url",
+      "value": "http://localhost:5001"
+    },
+    {
+      "key": "candidate_token",
+      "value": ""
+    },
+    {
+      "key": "employer_token",
+      "value": ""
+    },
+    {
+      "key": "candidate_profile_id",
+      "value": ""
+    },
+    {
+      "key": "employer_profile_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Login as Candidate (get token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set('candidate_token', json.token);",
+                  "        pm.test('Candidate token saved', function() { pm.expect(json.token).to.be.a('string'); });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"profile-candidate@test.com\",\n  \"password\": \"TestPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login as a Candidate user to get a JWT token. Register and verify email first via Auth API if needed."
+          }
+        },
+        {
+          "name": "Login as Employer (get token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set('employer_token', json.token);",
+                  "        pm.test('Employer token saved', function() { pm.expect(json.token).to.be.a('string'); });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"profile-employer@test.com\",\n  \"password\": \"TestPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Candidate Profile",
+      "item": [
+        {
+          "name": "Create Candidate Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('candidate_profile_id', json.candidateId);",
+                  "    pm.test('Profile created', function() { pm.expect(json.candidateId).to.be.a('string'); });",
+                  "    pm.test('Has userId', function() { pm.expect(json.userId).to.be.a('string'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+1234567890\",\n  \"location\": \"New York, NY\",\n  \"professionalSummary\": \"Full-stack developer with 5 years of experience in React and .NET\",\n  \"yearsOfExperience\": 5,\n  \"highestEducation\": \"Bachelor of Science in Computer Science\",\n  \"linkedinUrl\": \"https://linkedin.com/in/janedoe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profiles/candidate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "candidate"]
+            }
+          }
+        },
+        {
+          "name": "Get My Candidate Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns profile', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.phone).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/profiles/candidate/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "candidate", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update Candidate Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Profile updated', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.yearsOfExperience).to.eql(6);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+1234567890\",\n  \"location\": \"San Francisco, CA\",\n  \"professionalSummary\": \"Senior full-stack developer with 6 years of experience\",\n  \"yearsOfExperience\": 6,\n  \"highestEducation\": \"Master of Science in Computer Science\",\n  \"linkedinUrl\": \"https://linkedin.com/in/janedoe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profiles/candidate/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "candidate", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Public Candidate Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns limited public fields', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.candidateId).to.be.a('string');",
+                  "    pm.expect(json).to.not.have.property('phone');",
+                  "    pm.expect(json).to.not.have.property('linkedinUrl');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profiles/candidate/{{candidate_profile_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "candidate", "{{candidate_profile_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Duplicate Candidate Profile (should 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 409', function() { pm.response.to.have.status(409); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"yearsOfExperience\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profiles/candidate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "candidate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employer Profile",
+      "item": [
+        {
+          "name": "Create Employer Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('employer_profile_id', json.employerId);",
+                  "    pm.test('Profile created', function() { pm.expect(json.employerId).to.be.a('string'); });",
+                  "    pm.test('Company name set', function() { pm.expect(json.companyName).to.eql('Acme Corp'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Acme Corp\",\n  \"companyDescription\": \"Leading technology company building innovative solutions\",\n  \"industry\": \"Technology\",\n  \"websiteUrl\": \"https://acme.com\",\n  \"companyLocation\": \"Austin, TX\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profiles/employer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "employer"]
+            }
+          }
+        },
+        {
+          "name": "Get My Employer Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns profile', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.companyName).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/profiles/employer/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "employer", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update Employer Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Profile updated', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.companyDescription).to.contain('award-winning');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Acme Corp\",\n  \"companyDescription\": \"Award-winning technology company building innovative solutions\",\n  \"industry\": \"Technology\",\n  \"websiteUrl\": \"https://acme.com\",\n  \"companyLocation\": \"Austin, TX\",\n  \"logoUrl\": \"https://acme.com/logo.png\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profiles/employer/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "employer", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Public Employer Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns public company info', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.companyName).to.be.a('string');",
+                  "    pm.expect(json).to.not.have.property('userId');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profiles/employer/{{employer_profile_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "employer", "{{employer_profile_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Wrong Role - Candidate on Employer (should 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 403', function() { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Should Fail\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profiles/employer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profiles", "employer"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}
