@@ -41,8 +41,8 @@ services:
 
   auth-service:
     build:
-      context: .
-      dockerfile: src/services/AuthService/Dockerfile
+      context: src/services/AuthService
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
@@ -61,8 +61,8 @@ services:
 
   profile-service:
     build:
-      context: .
-      dockerfile: src/services/ProfileService/Dockerfile
+      context: src/services/ProfileService
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
@@ -81,8 +81,8 @@ services:
 
   job-service:
     build:
-      context: .
-      dockerfile: src/services/JobService/Dockerfile
+      context: src/services/JobService
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
@@ -101,8 +101,8 @@ services:
 
   application-service:
     build:
-      context: .
-      dockerfile: src/services/ApplicationService/Dockerfile
+      context: src/services/ApplicationService
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
@@ -121,8 +121,8 @@ services:
 
   ai-service:
     build:
-      context: .
-      dockerfile: src/services/AIService/Dockerfile
+      context: src/services/AIService
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
@@ -142,8 +142,8 @@ services:
 
   api-gateway:
     build:
-      context: .
-      dockerfile: src/services/ApiGateway/Dockerfile
+      context: src/services/ApiGateway
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
