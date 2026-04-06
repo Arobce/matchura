@@ -135,6 +135,9 @@ services:
       JWT_AUDIENCE: ${JWT_AUDIENCE}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       REDIS_CONNECTION: ${REDIS_CONNECTION}
+      JOB_SERVICE_URL: "http://job-service:8080"
+      APPLICATION_SERVICE_URL: "http://application-service:8080"
+      PROFILE_SERVICE_URL: "http://profile-service:8080"
     ports:
       - "5005:8080"
     depends_on:
@@ -142,6 +145,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      job-service:
+        condition: service_started
+      application-service:
+        condition: service_started
 
   api-gateway:
     build:
