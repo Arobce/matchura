@@ -111,6 +111,7 @@ services:
       JWT_ISSUER: ${JWT_ISSUER}
       JWT_AUDIENCE: ${JWT_AUDIENCE}
       REDIS_CONNECTION: ${REDIS_CONNECTION}
+      JOB_SERVICE_URL: "http://job-service:8080"
     ports:
       - "5004:8080"
     depends_on:
@@ -118,6 +119,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      job-service:
+        condition: service_started
 
   ai-service:
     build:
