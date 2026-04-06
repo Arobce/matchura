@@ -1,0 +1,13 @@
+**/.git
+**/.gitignore
+**/bin
+**/obj
+**/node_modules
+**/.next
+**/out
+**/TestResults
+**/coverage
+**/.DS_Store
+**/README.md
+**/guides
+**/*.md
