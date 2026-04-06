@@ -19,6 +19,7 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(u => u.FullName).IsRequired().HasMaxLength(100);
             entity.Property(u => u.AccountStatus).HasConversion<string>();
             entity.Property(u => u.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+            entity.Property(u => u.EmailVerificationCode).HasMaxLength(6);
             entity.Property(u => u.TwoFactorEmailCode).HasMaxLength(6);
         });
     }

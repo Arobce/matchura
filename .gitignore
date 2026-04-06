@@ -8,6 +8,7 @@ obj/
 *.DotSettings.user
 TestResults/
 guides
+docs
 
 # Node
 node_modules/
