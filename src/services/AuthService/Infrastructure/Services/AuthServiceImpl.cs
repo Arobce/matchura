@@ -33,12 +33,17 @@ public class AuthServiceImpl : IAuthService
         if (existingUser != null)
             throw new InvalidOperationException("An account with this email already exists");
 
+        var verificationCode = GenerateSecureCode();
+
         var user = new ApplicationUser
         {
             UserName = request.Email,
             Email = request.Email,
             FullName = request.FullName,
-            AccountStatus = AccountStatus.Active
+            AccountStatus = AccountStatus.Active,
+            EmailConfirmed = false,
+            EmailVerificationCode = verificationCode,
+            EmailVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15)
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
@@ -49,10 +54,9 @@ public class AuthServiceImpl : IAuthService
         }
 
         await _userManager.AddToRoleAsync(user, request.Role);
+        await _emailService.SendVerificationCodeAsync(user.Email!, verificationCode);
 
-        var (token, expiresAt) = _jwtTokenGenerator.GenerateToken(user, request.Role);
-
-        _logger.LogInformation("User {Email} registered with role {Role}", request.Email, request.Role);
+        _logger.LogInformation("User {Email} registered with role {Role}, verification email sent", request.Email, request.Role);
 
         return new AuthResponse
         {
@@ -60,9 +64,61 @@ public class AuthServiceImpl : IAuthService
             Email = user.Email!,
             FullName = user.FullName,
             Role = request.Role,
+            RequiresEmailVerification = true
+        };
+    }
+
+    public async Task<AuthResponse> VerifyEmailAsync(VerifyEmailRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email)
+            ?? throw new InvalidOperationException("User not found");
+
+        if (user.EmailConfirmed)
+            throw new InvalidOperationException("Email is already verified");
+
+        if (user.EmailVerificationCode != request.Code)
+            throw new UnauthorizedAccessException("Invalid verification code");
+
+        if (user.EmailVerificationCodeExpiry < DateTime.UtcNow)
+            throw new UnauthorizedAccessException("Verification code has expired");
+
+        user.EmailConfirmed = true;
+        user.EmailVerificationCode = null;
+        user.EmailVerificationCodeExpiry = null;
+        await _userManager.UpdateAsync(user);
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? "Candidate";
+        var (token, expiresAt) = _jwtTokenGenerator.GenerateToken(user, role);
+
+        _logger.LogInformation("User {Email} verified their email", request.Email);
+
+        return new AuthResponse
+        {
+            UserId = user.Id,
+            Email = user.Email!,
+            FullName = user.FullName,
+            Role = role,
             Token = token,
             ExpiresAt = expiresAt
         };
+    }
+
+    public async Task ResendVerificationAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email)
+            ?? throw new InvalidOperationException("User not found");
+
+        if (user.EmailConfirmed)
+            throw new InvalidOperationException("Email is already verified");
+
+        var code = GenerateSecureCode();
+        user.EmailVerificationCode = code;
+        user.EmailVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15);
+        await _userManager.UpdateAsync(user);
+
+        await _emailService.SendVerificationCodeAsync(user.Email!, code);
+        _logger.LogInformation("Verification code resent to {Email}", email);
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
@@ -70,6 +126,9 @@ public class AuthServiceImpl : IAuthService
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null)
             throw new UnauthorizedAccessException("Invalid email or password");
+
+        if (!user.EmailConfirmed)
+            throw new UnauthorizedAccessException("Please verify your email before logging in");
 
         if (user.AccountStatus == AccountStatus.Suspended)
             throw new UnauthorizedAccessException("Account is suspended");

@@ -8,5 +8,6 @@ public class AuthResponse
     public string Role { get; set; } = string.Empty;
     public string? Token { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    public bool RequiresEmailVerification { get; set; }
     public bool RequiresTwoFactor { get; set; }
 }

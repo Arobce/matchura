@@ -9,6 +9,8 @@ public class ApplicationUser : IdentityUser
     public AccountStatus AccountStatus { get; set; } = AccountStatus.Active;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public string? EmailVerificationCode { get; set; }
+    public DateTime? EmailVerificationCodeExpiry { get; set; }
     public bool TwoFactorEmailEnabled { get; set; }
     public string? TwoFactorEmailCode { get; set; }
     public DateTime? TwoFactorEmailCodeExpiry { get; set; }
