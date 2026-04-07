@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { PageContainer, Input, Textarea, Select, Button, Alert, Card, SectionHeader, Badge } from "@/components/ui";
+import { PageContainer, Input, Textarea, Select, Button, Alert, Card, SectionHeader, Badge, Combobox } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { CreateJobRequest, Skill } from "@/lib/types";
 import { X } from "lucide-react";
@@ -175,12 +175,21 @@ export default function CreateJobPage() {
             <h3 className="text-lg font-bold text-on-surface mb-4">Required Skills</h3>
             <div className="flex gap-3 items-end">
               <div className="flex-1">
-                <Select
+                <Combobox
                   label="Skill"
                   value={selectedSkillId}
-                  onChange={(e) => setSelectedSkillId(e.target.value)}
+                  onChange={(value) => setSelectedSkillId(value)}
+                  onCreateNew={async (name) => {
+                    try {
+                      const created = await api.post<Skill>("/api/skills", { name, category: "General" });
+                      setAllSkills((prev) => [...prev, created]);
+                      setSelectedSkillId(created.skillId);
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : "Failed to create skill");
+                    }
+                  }}
                   options={allSkills.map((s) => ({ value: s.skillId, label: s.name }))}
-                  placeholder="Select a skill"
+                  placeholder="Search or type a new skill..."
                 />
               </div>
               <div className="w-40">
