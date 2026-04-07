@@ -30,7 +30,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
-      router.push(user.role === "Employer" ? "/employer/dashboard" : "/dashboard");
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      const fallback = user.role === "Employer" ? "/employer/dashboard" : "/dashboard";
+      router.push(redirect || fallback);
     }
   }, [user, router]);
 

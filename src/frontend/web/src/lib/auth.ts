@@ -14,10 +14,12 @@ export function getToken(): string | null {
 
 export function setToken(token: string): void {
   localStorage.setItem("token", token);
+  document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 }
 
 export function removeToken(): void {
   localStorage.removeItem("token");
+  document.cookie = "token=; path=/; max-age=0";
 }
 
 export function decodeToken(token: string): TokenPayload | null {
