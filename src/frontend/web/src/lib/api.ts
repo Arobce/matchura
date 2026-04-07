@@ -81,6 +81,13 @@ class ApiClient {
     });
   }
 
+  async patch<T>(path: string, body?: unknown): Promise<T> {
+    return this.request<T>(path, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  }
+
   async del<T>(path: string): Promise<T> {
     return this.request<T>(path, { method: "DELETE" });
   }
