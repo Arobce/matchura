@@ -39,7 +39,7 @@ export default function EmployerDashboard() {
               <SectionHeader
                 title="Your Job Postings"
                 subtitle="Manage your active listings"
-                action={{ label: "Post a Job", href: "/jobs/create" }}
+                action={{ label: "Post a Job", href: "/employer/postjob" }}
               />
               {jobsLoading ? (
                 <Spinner />
@@ -85,7 +85,7 @@ export default function EmployerDashboard() {
               ) : (
                 <Card variant="low" padding="lg" className="text-center mt-4">
                   <p className="text-on-surface-variant mb-4">You haven&apos;t posted any jobs yet.</p>
-                  <Button href="/jobs/create">Post Your First Job</Button>
+                  <Button href="/employer/postjob">Post Your First Job</Button>
                 </Card>
               )}
             </section>

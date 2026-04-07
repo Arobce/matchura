@@ -32,6 +32,6 @@ export const config = {
     "/company/:path*",
     "/analytics/:path*",
     "/jobs/manage/:path*",
-    "/jobs/create/:path*",
+    "/employer/postjob/:path*",
   ],
 };
