@@ -37,25 +37,28 @@ public class AnalyticsServiceImpl : IAnalyticsService
         var cached = await _cache.GetAsync<EmployerDashboardResponse>(cacheKey);
         if (cached != null) return cached;
 
-        // Get employer's jobs from JobService
-        var jobIds = await FetchEmployerJobIdsAsync(employerId);
+        // Get employer's jobs from JobService (filtered by employerId)
+        var (jobIds, jobCount) = await FetchEmployerJobsAsync(employerId);
 
         var matchScores = await _db.MatchScores
             .Where(m => jobIds.Contains(m.JobId))
             .ToListAsync();
 
-        // Get application counts from ApplicationService
-        var applicationCounts = await FetchApplicationCountsAsync(employerId);
+        // Get application pipeline from ApplicationService (internal, no auth)
+        var (totalApps, pipelineBreakdown) = await FetchApplicationPipelineAsync(jobIds);
+
+        // Get skill demand from job skills via JobService
+        var topSkills = await FetchJobSkillDemandAsync(employerId);
 
         var dashboard = new EmployerDashboardResponse
         {
-            TotalActiveJobs = jobIds.Count,
-            TotalApplications = applicationCounts.Total,
+            TotalActiveJobs = jobCount,
+            TotalApplications = totalApps,
             AverageMatchScore = matchScores.Count > 0
                 ? Math.Round(matchScores.Average(m => m.OverallScore), 1)
                 : 0,
-            PipelineBreakdown = applicationCounts.ByStatus,
-            TopSkillsInDemand = await GetTopSkillsInDemandAsync(jobIds)
+            PipelineBreakdown = pipelineBreakdown,
+            TopSkillsInDemand = topSkills
         };
 
         await _cache.SetAsync(cacheKey, dashboard, TimeSpan.FromMinutes(5));
@@ -93,7 +96,6 @@ public class AnalyticsServiceImpl : IAnalyticsService
             ["0-39"] = matchScores.Count(m => m.OverallScore < 40)
         };
 
-        // Common skill gaps from SkillGapReports
         var skillGapReports = await _db.SkillGapReports
             .Where(r => r.JobId == jobId && r.MissingSkills != null)
             .ToListAsync();
@@ -138,7 +140,7 @@ public class AnalyticsServiceImpl : IAnalyticsService
         var cached = await _cache.GetAsync<TrendDataResponse>(cacheKey);
         if (cached != null) return cached;
 
-        var jobIds = await FetchEmployerJobIdsAsync(employerId);
+        var (jobIds, _) = await FetchEmployerJobsAsync(employerId);
 
         var fourWeeksAgo = DateTime.UtcNow.AddDays(-28);
         var matchScores = await _db.MatchScores
@@ -161,16 +163,82 @@ public class AnalyticsServiceImpl : IAnalyticsService
             AverageScorePerWeek = weeklyGroups
                 .Select(g => new WeeklyTrend { Week = g.Key, Value = Math.Round(g.Average(m => m.OverallScore), 1) })
                 .ToList(),
-            MostRequestedSkills = await GetTopSkillsInDemandAsync(jobIds)
+            MostRequestedSkills = await FetchJobSkillDemandAsync(employerId)
         };
 
         await _cache.SetAsync(cacheKey, trends, TimeSpan.FromMinutes(15));
         return trends;
     }
 
-    private async Task<List<Guid>> FetchEmployerJobIdsAsync(string employerId)
+    private async Task<(List<Guid> JobIds, int Count)> FetchEmployerJobsAsync(string employerId)
     {
         var jobServiceUrl = _configuration["JOB_SERVICE_URL"] ?? "http://job-service:8080";
+        try
+        {
+            var response = await _httpClient.GetAsync($"{jobServiceUrl}/api/jobs?employerId={employerId}&pageSize=100");
+            if (!response.IsSuccessStatusCode) return (new(), 0);
+
+            var content = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(content);
+
+            var totalCount = doc.RootElement.TryGetProperty("totalCount", out var tc) ? tc.GetInt32() : 0;
+
+            if (doc.RootElement.TryGetProperty("items", out var items))
+            {
+                var ids = items.EnumerateArray()
+                    .Select(j => j.GetProperty("jobId").GetGuid())
+                    .ToList();
+                return (ids, totalCount);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch employer jobs for {EmployerId}", employerId);
+        }
+
+        return (new(), 0);
+    }
+
+    private async Task<(int Total, Dictionary<string, int> ByStatus)> FetchApplicationPipelineAsync(List<Guid> jobIds)
+    {
+        var appServiceUrl = _configuration["APPLICATION_SERVICE_URL"] ?? "http://application-service:8080";
+        var total = 0;
+        var byStatus = new Dictionary<string, int>();
+
+        try
+        {
+            foreach (var jobId in jobIds.Take(20))
+            {
+                var response = await _httpClient.GetAsync($"{appServiceUrl}/internal/applications/job/{jobId}");
+                if (!response.IsSuccessStatusCode) continue;
+
+                var content = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(content);
+
+                if (doc.RootElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var app in doc.RootElement.EnumerateArray())
+                    {
+                        total++;
+                        var status = app.TryGetProperty("status", out var s) ? s.GetString() ?? "Unknown" : "Unknown";
+                        byStatus[status] = byStatus.GetValueOrDefault(status) + 1;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch application pipeline");
+        }
+
+        return (total, byStatus);
+    }
+
+    private async Task<List<SkillDemand>> FetchJobSkillDemandAsync(string employerId)
+    {
+        var jobServiceUrl = _configuration["JOB_SERVICE_URL"] ?? "http://job-service:8080";
+        var skillCounts = new Dictionary<string, int>();
+
         try
         {
             var response = await _httpClient.GetAsync($"{jobServiceUrl}/api/jobs?employerId={employerId}&pageSize=100");
@@ -181,59 +249,31 @@ public class AnalyticsServiceImpl : IAnalyticsService
 
             if (doc.RootElement.TryGetProperty("items", out var items))
             {
-                return items.EnumerateArray()
-                    .Select(j => j.GetProperty("jobId").GetGuid())
-                    .ToList();
+                foreach (var job in items.EnumerateArray())
+                {
+                    if (job.TryGetProperty("skills", out var skills))
+                    {
+                        foreach (var skill in skills.EnumerateArray())
+                        {
+                            var name = skill.TryGetProperty("skillName", out var n) ? n.GetString() ?? ""
+                                     : skill.TryGetProperty("name", out var n2) ? n2.GetString() ?? "" : "";
+                            if (!string.IsNullOrEmpty(name))
+                                skillCounts[name] = skillCounts.GetValueOrDefault(name) + 1;
+                        }
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to fetch employer jobs for {EmployerId}", employerId);
+            _logger.LogWarning(ex, "Failed to fetch job skills for {EmployerId}", employerId);
         }
 
-        return new();
-    }
-
-    private async Task<(int Total, Dictionary<string, int> ByStatus)> FetchApplicationCountsAsync(string employerId)
-    {
-        var appServiceUrl = _configuration["APPLICATION_SERVICE_URL"] ?? "http://application-service:8080";
-        try
-        {
-            var jobIds = await FetchEmployerJobIdsAsync(employerId);
-            var total = 0;
-            var byStatus = new Dictionary<string, int>();
-
-            foreach (var jobId in jobIds.Take(20))
-            {
-                var response = await _httpClient.GetAsync($"{appServiceUrl}/api/applications/job/{jobId}?pageSize=1");
-                if (!response.IsSuccessStatusCode) continue;
-
-                var content = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(content);
-                if (doc.RootElement.TryGetProperty("totalCount", out var count))
-                    total += count.GetInt32();
-            }
-
-            return (total, byStatus);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to fetch application counts for {EmployerId}", employerId);
-            return (0, new Dictionary<string, int>());
-        }
-    }
-
-    private async Task<List<SkillDemand>> GetTopSkillsInDemandAsync(List<Guid> jobIds)
-    {
-        var skills = await _db.CandidateSkills
-            .Where(s => s.Source == "resume_parse")
-            .GroupBy(s => s.SkillName)
-            .Select(g => new SkillDemand { Skill = g.Key, Count = g.Count() })
-            .OrderByDescending(s => s.Count)
+        return skillCounts
+            .OrderByDescending(k => k.Value)
             .Take(10)
-            .ToListAsync();
-
-        return skills;
+            .Select(k => new SkillDemand { Skill = k.Key, Count = k.Value })
+            .ToList();
     }
 
     private static MatchScoreResponse MapMatchToResponse(MatchScore m) => new()

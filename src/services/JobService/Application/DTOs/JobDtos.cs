@@ -77,6 +77,7 @@ public class JobListResponse
 
 public class JobQueryParams
 {
+    public string? EmployerId { get; set; }
     public string? Search { get; set; }
     public string? Location { get; set; }
     public EmploymentType? EmploymentType { get; set; }

@@ -12,7 +12,7 @@ export default function ResumesPage() {
   return (
     <>
       <Navbar />
-      <PageContainer maxWidth="md">
+      <PageContainer>
         <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-8">My Resumes</h1>
         <ResumeUploader onUploadComplete={refetch} />
         <ResumeList resumes={resumes ?? []} loading={loading} />

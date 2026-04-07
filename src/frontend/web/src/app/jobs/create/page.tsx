@@ -93,7 +93,7 @@ export default function CreateJobPage() {
   return (
     <>
       <Navbar />
-      <PageContainer maxWidth="md">
+      <PageContainer>
         <SectionHeader title="Post a New Job" subtitle="Fill in the details to create a job listing" />
 
         <form onSubmit={handleSubmit} className="space-y-8 mt-8">

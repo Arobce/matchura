@@ -12,7 +12,7 @@ export default function ApplicationsPage() {
   return (
     <>
       <Navbar />
-      <PageContainer maxWidth="md">
+      <PageContainer>
         <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-8">My Applications</h1>
         <ApplicationList applications={apps?.items ?? []} loading={loading} />
       </PageContainer>
