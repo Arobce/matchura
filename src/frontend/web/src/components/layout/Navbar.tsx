@@ -60,7 +60,7 @@ export function Navbar() {
           {isAuthenticated ? (
             <>
               {user?.role === "Employer" && (
-                <Button href="/employer/postjob" size="sm">Post a Job</Button>
+                <Button href="/jobs/create" size="sm">Post a Job</Button>
               )}
               <div className="flex items-center gap-2 border-l border-outline-variant/20 ml-2 pl-4">
                 <button className="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors">
