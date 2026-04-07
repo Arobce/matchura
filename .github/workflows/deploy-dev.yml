@@ -1,0 +1,38 @@
+name: Deploy to Railway (Dev)
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  deploy:
+    name: Deploy Services
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Deploy Auth Service
+        run: railway up --service auth-service --dockerfile src/services/AuthService/Dockerfile --detach
+
+      - name: Deploy Profile Service
+        run: railway up --service profile-service --dockerfile src/services/ProfileService/Dockerfile --detach
+
+      - name: Deploy Job Service
+        run: railway up --service job-service --dockerfile src/services/JobService/Dockerfile --detach
+
+      - name: Deploy Application Service
+        run: railway up --service application-service --dockerfile src/services/ApplicationService/Dockerfile --detach
+
+      - name: Deploy AI Service
+        run: railway up --service ai-service --dockerfile src/services/AIService/Dockerfile --detach
+
+      - name: Deploy API Gateway
+        run: railway up --service api-gateway --dockerfile src/services/ApiGateway/Dockerfile --detach
+
+      - name: Deploy Frontend
+        run: railway up --service frontend --dockerfile src/frontend/web/Dockerfile --detach

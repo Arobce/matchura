@@ -1,26 +1,189 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Stitch Material Design 3 — Light */
+  --background: #fbf8fe;
+  --foreground: #31323b;
+  --surface: #fbf8fe;
+  --surface-dim: #dad9e4;
+  --surface-bright: #fbf8fe;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f4f2fb;
+  --surface-container: #eeedf6;
+  --surface-container-high: #e8e7f1;
+  --surface-container-highest: #e2e1ed;
+  --surface-variant: #e2e1ed;
+  --on-surface: #31323b;
+  --on-surface-variant: #5e5e68;
+  --primary: #3152d3;
+  --primary-dim: #2145c6;
+  --primary-container: #5e7cfd;
+  --primary-fixed: #5e7cfd;
+  --primary-fixed-dim: #506fef;
+  --on-primary: #faf8ff;
+  --on-primary-container: #000000;
+  --secondary: #5b5e72;
+  --secondary-dim: #4f5266;
+  --secondary-container: #dfe1f9;
+  --secondary-fixed: #dfe1f9;
+  --secondary-fixed-dim: #d1d3eb;
+  --on-secondary: #faf8ff;
+  --on-secondary-container: #4d5165;
+  --tertiary: #6f557d;
+  --tertiary-dim: #634970;
+  --tertiary-container: #e7c6f5;
+  --tertiary-fixed: #e7c6f5;
+  --on-tertiary: #fff6fd;
+  --on-tertiary-container: #563e64;
+  --error: #a8364b;
+  --error-dim: #6b0221;
+  --error-container: #f97386;
+  --on-error: #fff7f7;
+  --on-error-container: #6e0523;
+  --outline: #7a7a84;
+  --outline-variant: #b1b1bc;
+  --inverse-surface: #0d0e12;
+  --inverse-on-surface: #9d9ca2;
+  --inverse-primary: #6d88ff;
+  --surface-tint: #3152d3;
+
+  /* Semantic aliases for backward compat */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --muted: #f4f2fb;
+  --muted-foreground: #5e5e68;
+  --border: #e2e1ed;
+  --card: #ffffff;
+  --card-foreground: #31323b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-primary: var(--primary);
+  --color-primary-dim: var(--primary-dim);
+  --color-primary-container: var(--primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary: var(--secondary);
+  --color-secondary-dim: var(--secondary-dim);
+  --color-secondary-container: var(--secondary-container);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-on-secondary: var(--on-secondary);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-dim: var(--tertiary-dim);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-error: var(--error);
+  --color-error-dim: var(--error-dim);
+  --color-error-container: var(--error-container);
+  --color-on-error: var(--on-error);
+  --color-on-error-container: var(--on-error-container);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-inverse-primary: var(--inverse-primary);
+  --color-surface-tint: var(--surface-tint);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0d0e12;
+    --foreground: #e2e1ed;
+    --surface: #0d0e12;
+    --surface-dim: #0d0e12;
+    --surface-bright: #31323b;
+    --surface-container-lowest: #08090c;
+    --surface-container-low: #1a1b22;
+    --surface-container: #1e1f27;
+    --surface-container-high: #282932;
+    --surface-container-highest: #33343d;
+    --surface-variant: #33343d;
+    --on-surface: #e2e1ed;
+    --on-surface-variant: #b1b1bc;
+    --primary: #6d88ff;
+    --primary-dim: #506fef;
+    --primary-container: #3152d3;
+    --primary-fixed: #5e7cfd;
+    --primary-fixed-dim: #506fef;
+    --on-primary: #00072f;
+    --on-primary-container: #faf8ff;
+    --secondary: #b1b1bc;
+    --secondary-dim: #8a8b97;
+    --secondary-container: #3b3e51;
+    --secondary-fixed: #dfe1f9;
+    --on-secondary: #3b3e51;
+    --on-secondary-container: #dfe1f9;
+    --tertiary: #d8b9e6;
+    --tertiary-dim: #c4a0d5;
+    --tertiary-container: #563e64;
+    --tertiary-fixed: #e7c6f5;
+    --on-tertiary: #422b4f;
+    --on-tertiary-container: #e7c6f5;
+    --error: #f97386;
+    --error-dim: #a8364b;
+    --error-container: #6e0523;
+    --on-error: #6b0221;
+    --on-error-container: #f97386;
+    --outline: #8a8b97;
+    --outline-variant: #5e5e68;
+    --inverse-surface: #e2e1ed;
+    --inverse-on-surface: #31323b;
+    --inverse-primary: #3152d3;
+    --surface-tint: #6d88ff;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --muted: #1e1f27;
+    --muted-foreground: #b1b1bc;
+    --border: #33343d;
+    --card: #1a1b22;
+    --card-foreground: #e2e1ed;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Stitch editorial shadow */
+.editorial-shadow {
+  box-shadow: 0px 12px 32px 0px rgba(49, 82, 211, 0.05);
+}
+
+/* Stitch signature gradient */
+.signature-gradient {
+  background: linear-gradient(135deg, #3152d3 0%, #5e7cfd 100%);
 }
