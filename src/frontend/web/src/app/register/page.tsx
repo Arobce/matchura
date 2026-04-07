@@ -27,7 +27,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-      router.push(form.role === "Employer" ? "/employer/dashboard" : "/dashboard");
+      router.push(`/verify-email?email=${encodeURIComponent(form.email)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {

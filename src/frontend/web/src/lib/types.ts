@@ -74,6 +74,18 @@ export interface Job {
   updatedAt: string;
 }
 
+export interface CreateJobRequest {
+  title: string;
+  description: string;
+  location?: string;
+  employmentType: string;
+  experienceRequired: number;
+  salaryMin?: number;
+  salaryMax?: number;
+  applicationDeadline?: string;
+  skills: { skillId: string; importanceLevel: string }[];
+}
+
 export interface JobListResponse {
   items: Job[];
   totalCount: number;
