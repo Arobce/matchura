@@ -3,7 +3,7 @@ WORKDIR /src
 COPY src/shared/SharedKernel/ shared/SharedKernel/
 COPY src/services/AIService/ services/AIService/
 RUN dotnet restore services/AIService/AIService.csproj
-RUN dotnet publish services/AIService/AIService.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish services/AIService/AIService.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app

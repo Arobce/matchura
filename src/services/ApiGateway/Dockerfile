@@ -3,7 +3,7 @@ WORKDIR /src
 COPY src/shared/SharedKernel/ shared/SharedKernel/
 COPY src/services/ApiGateway/ services/ApiGateway/
 RUN dotnet restore services/ApiGateway/ApiGateway.csproj
-RUN dotnet publish services/ApiGateway/ApiGateway.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish services/ApiGateway/ApiGateway.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
