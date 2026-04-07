@@ -169,6 +169,10 @@ public class JobServiceImpl : IJobService
             .Where(j => j.JobStatus == JobStatus.Active)
             .AsQueryable();
 
+        // Filter by employer
+        if (!string.IsNullOrWhiteSpace(q.EmployerId))
+            query = query.Where(j => j.EmployerId == q.EmployerId);
+
         // Search in title and description
         if (!string.IsNullOrWhiteSpace(q.Search))
         {

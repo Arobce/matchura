@@ -84,6 +84,9 @@ using (var scope = app.Services.CreateScope())
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await DataSeeder.SeedRolesAsync(roleManager);
+
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    await DataSeeder.SeedUsersAsync(userManager);
 }
 
 app.UseAuthentication();

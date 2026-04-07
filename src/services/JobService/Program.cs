@@ -68,6 +68,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<JobDbContext>();
     await db.Database.MigrateAsync();
     await DataSeeder.SeedSkillsAsync(db);
+    await DataSeeder.SeedJobsAsync(db);
 }
 
 app.UseAuthentication();

@@ -68,7 +68,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   return (
     <>
       <Navbar />
-      <PageContainer maxWidth="md">
+      <PageContainer>
         <JobHeader job={job} actions={actions} />
         {matchScore && <MatchScorePanel matchScore={matchScore} />}
         <ApplyModal

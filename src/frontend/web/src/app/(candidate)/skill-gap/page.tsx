@@ -40,7 +40,7 @@ export default function SkillGapPage() {
   return (
     <>
       <Navbar />
-      <PageContainer maxWidth="lg">
+      <PageContainer>
         <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-8">Skill Gap Analysis</h1>
 
         {/* Analysis Controls */}

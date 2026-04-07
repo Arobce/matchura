@@ -17,7 +17,7 @@ interface PageContainerProps {
   className?: string;
 }
 
-export function PageContainer({ children, maxWidth = "2xl", className }: PageContainerProps) {
+export function PageContainer({ children, maxWidth = "xl", className }: PageContainerProps) {
   return (
     <main className={cn("mx-auto px-6 sm:px-8 py-10", maxWidthStyles[maxWidth], className)}>
       {children}

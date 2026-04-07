@@ -105,6 +105,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AIDbContext>();
     await db.Database.MigrateAsync();
+    await DataSeeder.SeedAsync(db);
 }
 
 app.UseAuthentication();
