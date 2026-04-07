@@ -37,11 +37,15 @@ class ApiClient {
     });
 
     if (response.status === 401) {
-      if (typeof window !== "undefined") {
+      const errorData: ApiError = await response.json().catch(() => ({}));
+      const message = errorData.detail || errorData.error || errorData.title || "Unauthorized";
+      // Only auto-redirect for expired tokens on non-auth routes
+      const isAuthRoute = path.includes("/auth/login") || path.includes("/auth/register") || path.includes("/auth/verify");
+      if (!isAuthRoute && typeof window !== "undefined") {
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
-      throw new Error("Unauthorized");
+      throw new Error(message);
     }
 
     if (!response.ok) {
