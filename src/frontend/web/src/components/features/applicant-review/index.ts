@@ -1,2 +1,9 @@
 export { ApplicantDetailPanel } from "./ApplicantDetailPanel";
 export { ApplicantTable } from "./ApplicantTable";
+export { KanbanBoard } from "./KanbanBoard";
+export { KanbanCard } from "./KanbanCard";
+export { KanbanColumn } from "./KanbanColumn";
+export { ApplicantHeader } from "./ApplicantHeader";
+export { MatchAnalysisSection } from "./MatchAnalysisSection";
+export { ApplicationDetailsSection } from "./ApplicationDetailsSection";
+export { EmployerNotesSection } from "./EmployerNotesSection";

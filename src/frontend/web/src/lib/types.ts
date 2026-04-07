@@ -122,6 +122,8 @@ export interface ApplicationListResponse {
   totalPages: number;
 }
 
+export type ApplicationStatus = "Submitted" | "Reviewed" | "Shortlisted" | "Accepted" | "Rejected" | "Withdrawn";
+
 // ── Resume ──
 
 export interface ParsedResumeData {
