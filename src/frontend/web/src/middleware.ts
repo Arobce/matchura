@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedPrefixes = ["/dashboard", "/profile", "/resumes", "/applications", "/skill-gap", "/company", "/analytics", "/jobs/create", "/jobs/manage"];
+const protectedPrefixes = ["/dashboard", "/profile", "/resumes", "/applications", "/skill-gap", "/company", "/analytics", "/employer", "/jobs/manage"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -32,6 +32,6 @@ export const config = {
     "/company/:path*",
     "/analytics/:path*",
     "/jobs/manage/:path*",
-    "/jobs/create/:path*",
+    "/employer/:path*",
   ],
 };
