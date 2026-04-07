@@ -39,7 +39,7 @@ public class AuthServiceImpl : IAuthService
         {
             UserName = request.Email,
             Email = request.Email,
-            FullName = request.FullName,
+            FullName = $"{request.FirstName} {request.LastName}".Trim(),
             AccountStatus = AccountStatus.Active,
             EmailConfirmed = false,
             EmailVerificationCode = verificationCode,
