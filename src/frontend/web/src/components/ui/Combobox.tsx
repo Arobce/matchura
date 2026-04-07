@@ -110,7 +110,7 @@ export function Combobox({ label, options, value, onChange, onCreateNew, placeho
               }}
               className="w-full text-left px-4 py-2.5 text-sm text-primary font-semibold hover:bg-surface-container-low transition-colors border-t border-outline-variant/10"
             >
-              + Create &ldquo;{query.trim()}&rdquo;
+              + Create &quot;{query.trim()}&quot;
             </button>
           )}
         </div>
