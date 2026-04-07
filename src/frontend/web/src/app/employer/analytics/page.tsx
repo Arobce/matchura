@@ -18,12 +18,12 @@ export default function AnalyticsPage() {
         {loading || !trends ? (
           <Spinner size="lg" />
         ) : (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <TrendChart data={trends.applicationsPerWeek} label="Applications per Week" />
-              <TrendChart data={trends.averageScorePerWeek} label="Average Score per Week" color="#6f557d" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <TrendChart data={trends.applicationsPerWeek} label="Applications per Week" />
+            <TrendChart data={trends.averageScorePerWeek} label="Average Score per Week" color="#6f557d" />
+            <div className="lg:col-span-2">
+              <SkillDemandChart skills={trends.mostRequestedSkills} />
             </div>
-            <SkillDemandChart skills={trends.mostRequestedSkills} />
           </div>
         )}
       </PageContainer>
