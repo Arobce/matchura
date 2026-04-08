@@ -5,6 +5,7 @@ using JobService.Domain.Enums;
 using JobService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Events;
 
 namespace JobService.Infrastructure.Services;
 
@@ -12,11 +13,13 @@ public class JobServiceImpl : IJobService
 {
     private readonly JobDbContext _db;
     private readonly ILogger<JobServiceImpl> _logger;
+    private readonly IEventBus _eventBus;
 
-    public JobServiceImpl(JobDbContext db, ILogger<JobServiceImpl> logger)
+    public JobServiceImpl(JobDbContext db, ILogger<JobServiceImpl> logger, IEventBus eventBus)
     {
         _db = db;
         _logger = logger;
+        _eventBus = eventBus;
     }
 
     public async Task<JobResponse> CreateJobAsync(string employerId, CreateJobRequest request)
@@ -132,6 +135,17 @@ public class JobServiceImpl : IJobService
         job.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        if (request.Status == JobStatus.Active)
+        {
+            await _eventBus.PublishAsync(new JobPublishedEvent
+            {
+                JobId = jobId,
+                EmployerId = employerId,
+                Title = job.Title,
+                OccurredAt = DateTime.UtcNow
+            });
+        }
 
         _logger.LogInformation("Job {JobId} status changed to {Status}", jobId, request.Status);
         return await GetJobByIdAsync(jobId);
