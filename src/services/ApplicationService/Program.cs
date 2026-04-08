@@ -3,11 +3,13 @@ using ApplicationService.Application.DTOs;
 using ApplicationService.Application.Interfaces;
 using ApplicationService.Application.Validators;
 using ApplicationService.Infrastructure.Data;
+using ApplicationService.Infrastructure.Events;
 using ApplicationService.Infrastructure.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +49,14 @@ builder.Services.AddAuthorization();
 
 // HTTP client for inter-service communication (Job Service)
 builder.Services.AddHttpClient<IApplicationService, ApplicationServiceImpl>();
+
+// RabbitMQ Event Bus
+builder.Services.AddSingleton<IEventBus>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var logger = sp.GetRequiredService<ILogger<RabbitMqEventBus>>();
+    return RabbitMqEventBus.CreateAsync(config, logger).GetAwaiter().GetResult();
+});
 
 // Validators
 builder.Services.AddScoped<IValidator<CreateApplicationRequest>, CreateApplicationValidator>();
