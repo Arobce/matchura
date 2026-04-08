@@ -1,0 +1,72 @@
+{
+  "personalInfo": {
+    "name": "Jane Smith",
+    "email": "jane.smith@email.com",
+    "phone": "+1-555-123-4567",
+    "location": "San Francisco, CA",
+    "linkedin": "linkedin.com/in/janesmith"
+  },
+  "summary": "Senior full-stack developer with 10+ years of experience building scalable web applications. Expert in .NET, React, and cloud architecture with a track record of leading high-performing engineering teams.",
+  "experience": [
+    {
+      "company": "TechCorp Inc.",
+      "title": "Senior Software Engineer",
+      "location": "San Francisco, CA",
+      "startDate": "2020-01",
+      "endDate": null,
+      "description": "Lead development of microservices architecture serving 5M+ users. Designed and implemented real-time data processing pipeline using .NET and RabbitMQ.",
+      "highlights": ["Led team of 8 engineers", "Reduced API latency by 40%", "Implemented CI/CD pipeline"]
+    },
+    {
+      "company": "WebDev Solutions",
+      "title": "Software Engineer",
+      "location": "New York, NY",
+      "startDate": "2016-03",
+      "endDate": "2019-12",
+      "description": "Built customer-facing web applications using React and Node.js. Developed RESTful APIs and integrated third-party services.",
+      "highlights": ["Shipped 3 major product releases", "Mentored 4 junior developers"]
+    },
+    {
+      "company": "StartupXYZ",
+      "title": "Junior Developer",
+      "location": "Austin, TX",
+      "startDate": "2014-06",
+      "endDate": "2016-02",
+      "description": "Developed frontend components and contributed to backend API development.",
+      "highlights": ["Built responsive UI components", "Contributed to open source projects"]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of California, Berkeley",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "graduationDate": "2014-05",
+      "gpa": "3.8"
+    }
+  ],
+  "skills": [
+    { "name": "C#", "category": "Programming", "proficiencyLevel": "Expert", "yearsUsed": 10 },
+    { "name": ".NET", "category": "Framework", "proficiencyLevel": "Expert", "yearsUsed": 10 },
+    { "name": "React", "category": "Framework", "proficiencyLevel": "Advanced", "yearsUsed": 7 },
+    { "name": "TypeScript", "category": "Programming", "proficiencyLevel": "Advanced", "yearsUsed": 5 },
+    { "name": "PostgreSQL", "category": "Database", "proficiencyLevel": "Advanced", "yearsUsed": 8 },
+    { "name": "Docker", "category": "DevOps", "proficiencyLevel": "Advanced", "yearsUsed": 5 },
+    { "name": "AWS", "category": "Cloud", "proficiencyLevel": "Intermediate", "yearsUsed": 4 },
+    { "name": "RabbitMQ", "category": "DevOps", "proficiencyLevel": "Intermediate", "yearsUsed": 3 },
+    { "name": "Redis", "category": "Database", "proficiencyLevel": "Intermediate", "yearsUsed": 4 },
+    { "name": "Git", "category": "DevOps", "proficiencyLevel": "Expert", "yearsUsed": 10 },
+    { "name": "Agile", "category": "Soft Skills", "proficiencyLevel": "Advanced", "yearsUsed": 8 },
+    { "name": "Team Leadership", "category": "Soft Skills", "proficiencyLevel": "Advanced", "yearsUsed": 5 }
+  ],
+  "certifications": [
+    { "name": "AWS Solutions Architect Associate", "issuer": "Amazon Web Services", "date": "2022-03" }
+  ],
+  "projects": [
+    {
+      "name": "Microservices Migration",
+      "description": "Led the migration of a monolithic application to microservices architecture",
+      "technologies": ["C#", ".NET", "Docker", "RabbitMQ", "PostgreSQL"]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "overallScore": 85,
+  "skillScore": 88,
+  "experienceScore": 82,
+  "educationScore": 80,
+  "explanation": "The candidate demonstrates strong alignment with the job requirements. Their extensive experience with .NET and React directly matches the core technology stack. Leadership experience and cloud architecture knowledge further strengthen their candidacy.",
+  "strengths": [
+    "Expert-level .NET and C# skills matching the primary technology requirement",
+    "7+ years of React experience covering the frontend stack needs",
+    "Proven team leadership with experience managing 8 engineers",
+    "Strong PostgreSQL database skills relevant to the data layer"
+  ],
+  "gaps": [
+    "Limited Kubernetes experience compared to the DevOps requirements",
+    "No GraphQL experience mentioned though the role includes API design"
+  ]
+}

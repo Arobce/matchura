@@ -11,4 +11,20 @@
   <Folder Name="/src/shared/">
     <Project Path="src/shared/SharedKernel/SharedKernel.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Shared.TestUtilities/Shared.TestUtilities.csproj" />
+  </Folder>
+  <Folder Name="/tests/unit/">
+    <Project Path="tests/AuthService.UnitTests/AuthService.UnitTests.csproj" />
+    <Project Path="tests/ProfileService.UnitTests/ProfileService.UnitTests.csproj" />
+    <Project Path="tests/JobService.UnitTests/JobService.UnitTests.csproj" />
+    <Project Path="tests/ApplicationService.UnitTests/ApplicationService.UnitTests.csproj" />
+    <Project Path="tests/AIService.UnitTests/AIService.UnitTests.csproj" />
+    <Project Path="tests/NotificationService.UnitTests/NotificationService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/integration/">
+    <Project Path="tests/JobService.IntegrationTests/JobService.IntegrationTests.csproj" />
+    <Project Path="tests/ApplicationService.IntegrationTests/ApplicationService.IntegrationTests.csproj" />
+    <Project Path="tests/AIService.IntegrationTests/AIService.IntegrationTests.csproj" />
+  </Folder>
 </Solution>

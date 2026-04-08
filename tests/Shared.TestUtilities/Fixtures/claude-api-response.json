@@ -1,0 +1,17 @@
+{
+  "id": "msg_test_12345",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"overallScore\":85,\"skillScore\":88,\"experienceScore\":82,\"educationScore\":80,\"explanation\":\"Strong match with relevant experience.\",\"strengths\":[\"Expert .NET skills\",\"React experience\"],\"gaps\":[\"Limited Kubernetes experience\"]}"
+    }
+  ],
+  "model": "claude-sonnet-4-20250514",
+  "stop_reason": "end_turn",
+  "usage": {
+    "input_tokens": 1500,
+    "output_tokens": 200
+  }
+}

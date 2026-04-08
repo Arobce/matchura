@@ -1,0 +1,17 @@
+{
+  "overallScore": 35,
+  "skillScore": 28,
+  "experienceScore": 40,
+  "educationScore": 45,
+  "explanation": "The candidate shows limited alignment with the position requirements. While they have foundational programming skills, they lack experience with the core technology stack (.NET, React) and have minimal professional experience. This role requires a senior-level engineer which does not match their current career stage.",
+  "strengths": [
+    "Strong academic foundation in computer science fundamentals",
+    "Demonstrated initiative through personal projects and internship"
+  ],
+  "gaps": [
+    "No professional experience with C# or .NET framework required for the role",
+    "Only 3 months of professional experience versus the 5+ years required",
+    "Missing cloud infrastructure experience (AWS, Docker, Kubernetes)",
+    "No experience with microservices architecture or distributed systems"
+  ]
+}
