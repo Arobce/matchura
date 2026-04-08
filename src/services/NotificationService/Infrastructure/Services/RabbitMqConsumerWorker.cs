@@ -128,7 +128,7 @@ public class RabbitMqConsumerWorker : BackgroundService
         }
     }
 
-    private async Task HandleApplicationSubmitted(string body, INotificationService svc, IHttpClientFactory httpFactory, IConfiguration config)
+    internal async Task HandleApplicationSubmitted(string body, INotificationService svc, IHttpClientFactory httpFactory, IConfiguration config)
     {
         var evt = JsonSerializer.Deserialize<ApplicationSubmittedEvent>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         if (evt == null) return;
@@ -149,7 +149,7 @@ public class RabbitMqConsumerWorker : BackgroundService
             evt.ApplicationId.ToString(), "Application");
     }
 
-    private async Task HandleApplicationStatusChanged(string body, INotificationService svc, IHttpClientFactory httpFactory, IConfiguration config)
+    internal async Task HandleApplicationStatusChanged(string body, INotificationService svc, IHttpClientFactory httpFactory, IConfiguration config)
     {
         var evt = JsonSerializer.Deserialize<ApplicationStatusChangedEvent>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         if (evt == null) return;
@@ -170,7 +170,7 @@ public class RabbitMqConsumerWorker : BackgroundService
             evt.ApplicationId.ToString(), "Application");
     }
 
-    private async Task HandleApplicationWithdrawn(string body, INotificationService svc, IHttpClientFactory httpFactory, IConfiguration config)
+    internal async Task HandleApplicationWithdrawn(string body, INotificationService svc, IHttpClientFactory httpFactory, IConfiguration config)
     {
         var evt = JsonSerializer.Deserialize<ApplicationWithdrawnEvent>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         if (evt == null) return;
@@ -186,7 +186,7 @@ public class RabbitMqConsumerWorker : BackgroundService
         }
     }
 
-    private async Task HandleJobMatched(string body, INotificationService svc)
+    internal async Task HandleJobMatched(string body, INotificationService svc)
     {
         var evt = JsonSerializer.Deserialize<JobMatchedEvent>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         if (evt == null) return;

@@ -27,4 +27,8 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);publish\**</DefaultItemExcludes>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="AIService.UnitTests" />
+  </ItemGroup>
+
 </Project>

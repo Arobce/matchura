@@ -22,4 +22,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="NotificationService.UnitTests" />
+  </ItemGroup>
+
 </Project>
