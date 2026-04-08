@@ -1,0 +1,44 @@
+{
+  "personalInfo": {
+    "name": "Alex Johnson",
+    "email": "alex.j@email.com",
+    "phone": null,
+    "location": "Portland, OR",
+    "linkedin": null
+  },
+  "summary": "Recent computer science graduate eager to start a career in software development. Strong foundation in Python and JavaScript with academic project experience.",
+  "experience": [
+    {
+      "company": "Local Tech Shop",
+      "title": "Software Development Intern",
+      "location": "Portland, OR",
+      "startDate": "2024-06",
+      "endDate": "2024-08",
+      "description": "Assisted with bug fixes and feature development on internal tools.",
+      "highlights": ["Fixed 15+ bugs in production codebase"]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Portland State University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "graduationDate": "2024-12",
+      "gpa": "3.4"
+    }
+  ],
+  "skills": [
+    { "name": "Python", "category": "Programming", "proficiencyLevel": "Intermediate", "yearsUsed": 3 },
+    { "name": "JavaScript", "category": "Programming", "proficiencyLevel": "Intermediate", "yearsUsed": 2 },
+    { "name": "HTML/CSS", "category": "Programming", "proficiencyLevel": "Intermediate", "yearsUsed": 2 },
+    { "name": "Git", "category": "DevOps", "proficiencyLevel": "Beginner", "yearsUsed": 1 }
+  ],
+  "certifications": [],
+  "projects": [
+    {
+      "name": "Student Portfolio Website",
+      "description": "Built a personal portfolio website using React",
+      "technologies": ["JavaScript", "React", "HTML/CSS"]
+    }
+  ]
+}
