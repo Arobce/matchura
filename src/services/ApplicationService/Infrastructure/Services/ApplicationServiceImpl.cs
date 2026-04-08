@@ -8,6 +8,7 @@ using ApplicationService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Events;
 
 namespace ApplicationService.Infrastructure.Services;
 
@@ -17,17 +18,20 @@ public class ApplicationServiceImpl : IApplicationService
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<ApplicationServiceImpl> _logger;
+    private readonly IEventBus _eventBus;
 
     public ApplicationServiceImpl(
         ApplicationDbContext db,
         HttpClient httpClient,
         IConfiguration configuration,
-        ILogger<ApplicationServiceImpl> logger)
+        ILogger<ApplicationServiceImpl> logger,
+        IEventBus eventBus)
     {
         _db = db;
         _httpClient = httpClient;
         _configuration = configuration;
         _logger = logger;
+        _eventBus = eventBus;
     }
 
     public async Task<ApplicationResponse> CreateApplicationAsync(string candidateId, CreateApplicationRequest request)
@@ -50,6 +54,14 @@ public class ApplicationServiceImpl : IApplicationService
 
         _db.Applications.Add(application);
         await _db.SaveChangesAsync();
+
+        await _eventBus.PublishAsync(new ApplicationSubmittedEvent
+        {
+            ApplicationId = application.ApplicationId,
+            CandidateId = candidateId,
+            JobId = request.JobId,
+            OccurredAt = DateTime.UtcNow
+        });
 
         _logger.LogInformation("Application {Id} created by candidate {CandidateId} for job {JobId}",
             application.ApplicationId, candidateId, request.JobId);
@@ -120,6 +132,14 @@ public class ApplicationServiceImpl : IApplicationService
         application.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
+        await _eventBus.PublishAsync(new ApplicationWithdrawnEvent
+        {
+            ApplicationId = applicationId,
+            CandidateId = candidateId,
+            JobId = application.JobId,
+            OccurredAt = DateTime.UtcNow
+        });
+
         _logger.LogInformation("Application {Id} withdrawn by candidate", applicationId);
         return MapToResponse(application);
     }
@@ -180,9 +200,20 @@ public class ApplicationServiceImpl : IApplicationService
         if (!valid)
             throw new InvalidOperationException($"Cannot transition from {application.Status} to {request.Status}");
 
+        var oldStatus = application.Status;
         application.Status = request.Status;
         application.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
+
+        await _eventBus.PublishAsync(new ApplicationStatusChangedEvent
+        {
+            ApplicationId = applicationId,
+            CandidateId = application.CandidateId,
+            JobId = application.JobId,
+            OldStatus = oldStatus.ToString(),
+            NewStatus = request.Status.ToString(),
+            OccurredAt = DateTime.UtcNow
+        });
 
         _logger.LogInformation("Application {Id} status updated to {Status}", applicationId, request.Status);
         return MapToResponse(application);
