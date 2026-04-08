@@ -1,0 +1,59 @@
+{
+  "summary": "The candidate has strong .NET and React skills but lacks cloud-native and DevOps experience required for this senior platform engineering role. With focused upskilling in Kubernetes and CI/CD, readiness can be achieved in 2-4 months.",
+  "overallReadiness": 62,
+  "estimatedTimeToReady": "2-4 months",
+  "missingSkills": [
+    {
+      "skillName": "Kubernetes",
+      "importance": "Critical",
+      "currentLevel": "None",
+      "requiredLevel": "Advanced",
+      "gapSeverity": 9,
+      "recommendation": "Complete the Certified Kubernetes Application Developer (CKAD) course and build a multi-service deployment project."
+    },
+    {
+      "skillName": "Terraform",
+      "importance": "Important",
+      "currentLevel": "Beginner",
+      "requiredLevel": "Intermediate",
+      "gapSeverity": 6,
+      "recommendation": "Work through HashiCorp's Terraform Associate tutorials and provision a small AWS environment."
+    },
+    {
+      "skillName": "GraphQL",
+      "importance": "NiceToHave",
+      "currentLevel": "None",
+      "requiredLevel": "Intermediate",
+      "gapSeverity": 4,
+      "recommendation": "Build a GraphQL API using Hot Chocolate for .NET to combine with existing REST knowledge."
+    }
+  ],
+  "recommendedActions": [
+    {
+      "priority": 1,
+      "action": "Enroll in the CKAD certification preparation course on KodeKloud",
+      "estimatedTime": "4 weeks",
+      "resourceType": "Course",
+      "rationale": "Kubernetes is a critical gap and the primary blocker for this role."
+    },
+    {
+      "priority": 2,
+      "action": "Deploy the existing microservices project to a Kubernetes cluster on AWS EKS",
+      "estimatedTime": "2 weeks",
+      "resourceType": "Project",
+      "rationale": "Hands-on experience bridging current .NET/Docker skills with Kubernetes orchestration."
+    },
+    {
+      "priority": 3,
+      "action": "Complete the Terraform Associate certification prep",
+      "estimatedTime": "2 weeks",
+      "resourceType": "Certification",
+      "rationale": "Infrastructure as code is a key requirement and complements Kubernetes knowledge."
+    }
+  ],
+  "strengths": [
+    "Expert-level C# and .NET aligning with the core technology stack",
+    "Strong React/TypeScript skills covering the frontend requirements",
+    "Proven leadership and mentoring experience matching the senior role expectations"
+  ]
+}

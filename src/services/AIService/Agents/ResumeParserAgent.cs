@@ -35,7 +35,7 @@ public class ResumeParserAgent
         _client = client;
     }
 
-    public async Task<ParsedResumeData> ParseAsync(string rawText, CancellationToken ct = default)
+    public virtual async Task<ParsedResumeData> ParseAsync(string rawText, CancellationToken ct = default)
     {
         var userMessage = $"Parse the following resume and extract structured data:\n\n{rawText}";
         return await _client.SendAndParseAsync<ParsedResumeData>(SystemPrompt, userMessage, ct);

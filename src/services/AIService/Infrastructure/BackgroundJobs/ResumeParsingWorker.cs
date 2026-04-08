@@ -44,7 +44,7 @@ public class ResumeParsingWorker : BackgroundService
         }
     }
 
-    private async Task ProcessResumeAsync(Guid resumeId, CancellationToken ct)
+    internal async Task ProcessResumeAsync(Guid resumeId, CancellationToken ct)
     {
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AIDbContext>();
