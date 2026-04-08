@@ -41,7 +41,7 @@ public class JobMatcherAgent
         _client = client;
     }
 
-    public async Task<MatchResult> ComputeMatchAsync(string candidateData, string jobData, CancellationToken ct = default)
+    public virtual async Task<MatchResult> ComputeMatchAsync(string candidateData, string jobData, CancellationToken ct = default)
     {
         var userMessage = $"""
             CANDIDATE PROFILE:
