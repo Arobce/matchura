@@ -9,6 +9,8 @@ using AIService.Infrastructure.BackgroundJobs;
 using AIService.Infrastructure.Data;
 using AIService.Infrastructure.Services;
 using AIService.Infrastructure.TextExtraction;
+using Amazon;
+using Amazon.S3;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -56,6 +58,14 @@ var redisConnection = builder.Configuration["REDIS_CONNECTION"] ?? "localhost:63
 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     ConnectionMultiplexer.Connect(redisConnection));
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+// AWS S3
+var awsRegion = builder.Configuration["AWS_REGION"] ?? "us-east-1";
+builder.Services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
+    builder.Configuration["AWS_ACCESS_KEY_ID"],
+    builder.Configuration["AWS_SECRET_ACCESS_KEY"],
+    RegionEndpoint.GetBySystemName(awsRegion)));
+builder.Services.AddScoped<IS3StorageService, S3StorageService>();
 
 // Claude API client
 builder.Services.AddHttpClient<ClaudeApiClient>(client =>

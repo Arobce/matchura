@@ -135,6 +135,10 @@ services:
       JWT_AUDIENCE: ${JWT_AUDIENCE}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       REDIS_CONNECTION: ${REDIS_CONNECTION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-matchura-uploads}
       JOB_SERVICE_URL: "http://job-service:8080"
       APPLICATION_SERVICE_URL: "http://application-service:8080"
       PROFILE_SERVICE_URL: "http://profile-service:8080"

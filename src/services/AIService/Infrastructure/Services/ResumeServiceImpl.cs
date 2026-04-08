@@ -16,17 +16,20 @@ public class ResumeServiceImpl : IResumeService
     private readonly AIDbContext _db;
     private readonly IEnumerable<ITextExtractor> _extractors;
     private readonly Channel<Guid> _channel;
+    private readonly IS3StorageService _s3;
     private readonly ILogger<ResumeServiceImpl> _logger;
 
     public ResumeServiceImpl(
         AIDbContext db,
         IEnumerable<ITextExtractor> extractors,
         Channel<Guid> channel,
+        IS3StorageService s3,
         ILogger<ResumeServiceImpl> logger)
     {
         _db = db;
         _extractors = extractors;
         _channel = channel;
+        _s3 = s3;
         _logger = logger;
     }
 
@@ -35,21 +38,33 @@ public class ResumeServiceImpl : IResumeService
         var extractor = _extractors.FirstOrDefault(e => e.CanHandle(contentType))
             ?? throw new InvalidOperationException($"Unsupported file type: {contentType}. Supported: PDF, DOCX");
 
+        // Buffer the stream so we can use it for both text extraction and S3 upload
+        using var buffer = new MemoryStream();
+        await fileStream.CopyToAsync(buffer);
+
         var resume = new Resume
         {
             CandidateId = candidateId,
             OriginalFileName = fileName,
-            FileUrl = $"uploads/{candidateId}/{Guid.NewGuid()}/{fileName}",
             ContentType = contentType,
             ParseStatus = ParseStatus.Extracting
         };
+
+        var s3Key = $"resumes/{candidateId}/{resume.ResumeId}/{fileName}";
+        resume.FileUrl = s3Key;
 
         _db.Resumes.Add(resume);
         await _db.SaveChangesAsync();
 
         try
         {
-            var rawText = await extractor.ExtractTextAsync(fileStream);
+            // Upload to S3
+            buffer.Position = 0;
+            await _s3.UploadFileAsync(buffer, s3Key, contentType);
+
+            // Extract text
+            buffer.Position = 0;
+            var rawText = await extractor.ExtractTextAsync(buffer);
 
             if (string.IsNullOrWhiteSpace(rawText))
             {
@@ -71,13 +86,13 @@ public class ResumeServiceImpl : IResumeService
             // Queue for AI parsing
             await _channel.Writer.WriteAsync(resume.ResumeId);
 
-            _logger.LogInformation("Resume {ResumeId} uploaded and queued for parsing", resume.ResumeId);
+            _logger.LogInformation("Resume {ResumeId} uploaded to S3 and queued for parsing", resume.ResumeId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Text extraction failed for resume {ResumeId}", resume.ResumeId);
+            _logger.LogError(ex, "Upload/extraction failed for resume {ResumeId}", resume.ResumeId);
             resume.ParseStatus = ParseStatus.Failed;
-            resume.ErrorMessage = $"Text extraction failed: {ex.Message}";
+            resume.ErrorMessage = $"Upload failed: {ex.Message}";
             await _db.SaveChangesAsync();
         }
 
@@ -127,6 +142,7 @@ public class ResumeServiceImpl : IResumeService
         ResumeId = r.ResumeId,
         CandidateId = r.CandidateId,
         OriginalFileName = r.OriginalFileName,
+        FileUrl = r.FileUrl,
         Status = r.ParseStatus.ToString(),
         ErrorMessage = r.ErrorMessage,
         ParsedData = string.IsNullOrEmpty(r.ParsedData) ? null

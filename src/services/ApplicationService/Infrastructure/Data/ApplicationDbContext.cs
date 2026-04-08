@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.ApplicationId).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.CandidateId).IsRequired().HasMaxLength(450);
             entity.Property(e => e.CoverLetter).HasMaxLength(3000);
+            entity.Property(e => e.CoverLetterUrl).HasMaxLength(500);
             entity.Property(e => e.ResumeUrl).HasMaxLength(500);
             entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(20);
             entity.Property(e => e.EmployerNotes).HasMaxLength(2000);

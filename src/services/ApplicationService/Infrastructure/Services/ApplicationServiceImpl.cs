@@ -43,6 +43,7 @@ public class ApplicationServiceImpl : IApplicationService
             CandidateId = candidateId,
             JobId = request.JobId,
             CoverLetter = request.CoverLetter,
+            CoverLetterUrl = request.CoverLetterUrl,
             ResumeUrl = request.ResumeUrl,
             Status = ApplicationStatus.Submitted
         };
@@ -230,6 +231,7 @@ public class ApplicationServiceImpl : IApplicationService
         CandidateId = a.CandidateId,
         JobId = a.JobId,
         CoverLetter = a.CoverLetter,
+        CoverLetterUrl = a.CoverLetterUrl,
         ResumeUrl = a.ResumeUrl,
         Status = a.Status.ToString(),
         EmployerNotes = a.EmployerNotes,

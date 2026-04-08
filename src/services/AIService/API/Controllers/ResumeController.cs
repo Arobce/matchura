@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AIService.Application.Interfaces;
+using AIService.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace AIService.API.Controllers;
 public class ResumeController : ControllerBase
 {
     private readonly IResumeService _resumeService;
+    private readonly IS3StorageService _s3;
 
-    public ResumeController(IResumeService resumeService)
+    public ResumeController(IResumeService resumeService, IS3StorageService s3)
     {
         _resumeService = resumeService;
+        _s3 = s3;
     }
 
     [HttpPost("upload")]
@@ -80,5 +83,24 @@ public class ResumeController : ControllerBase
 
         var result = await _resumeService.GetResumesByCandidateAsync(candidateId);
         return Ok(result);
+    }
+
+    [HttpGet("{id:guid}/download")]
+    [Authorize(Roles = "Candidate,Employer")]
+    public async Task<IActionResult> Download(Guid id)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new UnauthorizedAccessException();
+
+        try
+        {
+            var resume = await _resumeService.GetResumeByIdAsync(id, userId);
+            var url = await _s3.GetPresignedUrlAsync(resume.FileUrl, TimeSpan.FromMinutes(15));
+            return Ok(new { downloadUrl = url });
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound(new { error = "Resume not found" });
+        }
     }
 }
