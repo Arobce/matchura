@@ -7,8 +7,10 @@ using AIService.Application.Interfaces;
 using AIService.Application.Validators;
 using AIService.Infrastructure.BackgroundJobs;
 using AIService.Infrastructure.Data;
+using AIService.Infrastructure.Events;
 using AIService.Infrastructure.Services;
 using AIService.Infrastructure.TextExtraction;
+using SharedKernel.Events;
 using Amazon;
 using Amazon.S3;
 using FluentValidation;
@@ -87,9 +89,20 @@ builder.Services.AddScoped<SkillGapAnalyzerAgent>();
 builder.Services.AddSingleton<ITextExtractor, PdfTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
 
+// RabbitMQ Event Bus
+builder.Services.AddSingleton<IEventBus>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var logger = sp.GetRequiredService<ILogger<RabbitMqEventBus>>();
+    return RabbitMqEventBus.CreateAsync(config, logger).GetAwaiter().GetResult();
+});
+
 // Resume parsing background worker channel
 builder.Services.AddSingleton(Channel.CreateUnbounded<Guid>());
 builder.Services.AddHostedService<ResumeParsingWorker>();
+
+// Job matching background worker (auto-match on job publish)
+builder.Services.AddHostedService<JobMatchingWorker>();
 
 // Services
 builder.Services.AddScoped<IResumeService, ResumeServiceImpl>();
