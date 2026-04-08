@@ -4,10 +4,12 @@ using JobService.Application.DTOs;
 using JobService.Application.Interfaces;
 using JobService.Application.Validators;
 using JobService.Infrastructure.Data;
+using JobService.Infrastructure.Events;
 using JobService.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,14 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAuthorization();
+
+// RabbitMQ Event Bus
+builder.Services.AddSingleton<IEventBus>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var logger = sp.GetRequiredService<ILogger<RabbitMqEventBus>>();
+    return RabbitMqEventBus.CreateAsync(config, logger).GetAwaiter().GetResult();
+});
 
 // Services
 builder.Services.AddScoped<IJobService, JobServiceImpl>();
