@@ -14,9 +14,10 @@ public class CreateApplicationValidator : AbstractValidator<CreateApplicationReq
             .MaximumLength(3000).WithMessage("Cover letter cannot exceed 3000 characters");
 
         RuleFor(x => x.ResumeUrl)
-            .MaximumLength(500).WithMessage("Resume URL is too long")
-            .Must(url => string.IsNullOrEmpty(url) || Uri.TryCreate(url, UriKind.Absolute, out _))
-            .WithMessage("Invalid resume URL format");
+            .MaximumLength(500).WithMessage("Resume URL is too long");
+
+        RuleFor(x => x.CoverLetterUrl)
+            .MaximumLength(500).WithMessage("Cover letter URL is too long");
     }
 }
 

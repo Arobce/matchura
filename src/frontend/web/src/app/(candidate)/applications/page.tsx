@@ -7,7 +7,7 @@ import { useApi } from "@/hooks/useApi";
 import type { ApplicationListResponse } from "@/lib/types";
 
 export default function ApplicationsPage() {
-  const { data: apps, loading } = useApi<ApplicationListResponse>("/api/applications/me?pageSize=50");
+  const { data: apps, loading } = useApi<ApplicationListResponse>("/api/applications/my-applications?pageSize=50");
 
   return (
     <>
