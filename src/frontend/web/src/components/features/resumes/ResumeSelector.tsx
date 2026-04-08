@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { DragDropZone } from "@/components/composed";
 import { Spinner, Alert } from "@/components/ui";
@@ -71,6 +71,13 @@ export function ResumeSelector({ selectedId, onSelect }: ResumeSelectorProps) {
   if (loading) return <Spinner />;
 
   const completed = resumes?.filter((r) => r.status === "Completed") ?? [];
+
+  // Auto-select if there's only one completed resume and nothing selected
+  useEffect(() => {
+    if (!selectedId && completed.length > 0) {
+      onSelect(completed[0].resumeId);
+    }
+  }, [completed.length, selectedId, onSelect]);
 
   return (
     <div className="space-y-3">

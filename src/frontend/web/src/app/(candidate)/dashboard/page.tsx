@@ -9,7 +9,7 @@ import type { ApplicationListResponse, MatchListResponse, ResumeResponse } from 
 
 export default function CandidateDashboard() {
   const { user } = useAuth();
-  const { data: apps, loading } = useApi<ApplicationListResponse>("/api/applications/me?pageSize=5");
+  const { data: apps, loading } = useApi<ApplicationListResponse>("/api/applications/my-applications?pageSize=5");
   const { data: matches } = useApi<MatchListResponse>("/api/matching/candidate/me/jobs?pageSize=5");
   const { data: resumes } = useApi<ResumeResponse[]>("/api/resumes/me");
 
