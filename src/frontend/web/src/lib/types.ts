@@ -107,6 +107,7 @@ export interface Application {
   candidateId: string;
   jobId: string;
   coverLetter?: string;
+  coverLetterUrl?: string;
   resumeUrl?: string;
   status: string;
   employerNotes?: string;
@@ -171,6 +172,7 @@ export interface ResumeResponse {
   resumeId: string;
   candidateId: string;
   originalFileName: string;
+  fileUrl: string;
   status: string;
   errorMessage?: string;
   parsedData?: ParsedResumeData;
@@ -188,6 +190,11 @@ export interface ResumeUploadResponse {
   resumeId: string;
   status: string;
   message: string;
+}
+
+export interface DocumentUploadResponse {
+  fileUrl: string;
+  extractedText: string;
 }
 
 // ── Matching ──
