@@ -279,3 +279,28 @@ export interface TrendDataResponse {
   averageScorePerWeek: Array<{ week: string; value: number }>;
   mostRequestedSkills: Array<{ skill: string; count: number }>;
 }
+
+// ── Notifications ──
+
+export interface UserNotification {
+  notificationId: string;
+  type: string;
+  title: string;
+  message: string;
+  relatedEntityId?: string;
+  relatedEntityType?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface NotificationListResponse {
+  items: UserNotification[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface UnreadCountResponse {
+  count: number;
+}

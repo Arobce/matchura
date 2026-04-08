@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_MULTIPLE_DATABASES: auth_db,profile_db,job_db,application_db,ai_db
+      POSTGRES_MULTIPLE_DATABASES: auth_db,profile_db,job_db,application_db,ai_db,notification_db
     ports:
       - "5433:5432"
     volumes:
@@ -25,6 +25,20 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: matchura
+      RABBITMQ_DEFAULT_PASS: matchura_dev
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
@@ -112,12 +126,17 @@ services:
       JWT_AUDIENCE: ${JWT_AUDIENCE}
       REDIS_CONNECTION: ${REDIS_CONNECTION}
       JOB_SERVICE_URL: "http://job-service:8080"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: matchura
+      RABBITMQ_PASS: matchura_dev
     ports:
       - "5004:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       job-service:
         condition: service_started
@@ -154,6 +173,32 @@ services:
       application-service:
         condition: service_started
 
+  notification-service:
+    build:
+      context: .
+      dockerfile: src/services/NotificationService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      DATABASE_URL: "Host=postgres;Database=notification_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_AUDIENCE: ${JWT_AUDIENCE}
+      REDIS_CONNECTION: ${REDIS_CONNECTION}
+      JOB_SERVICE_URL: "http://job-service:8080"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: matchura
+      RABBITMQ_PASS: matchura_dev
+    ports:
+      - "5006:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      job-service:
+        condition: service_started
+
   api-gateway:
     build:
       context: .
@@ -172,6 +217,7 @@ services:
       - job-service
       - application-service
       - ai-service
+      - notification-service
 
   frontend:
     build:
