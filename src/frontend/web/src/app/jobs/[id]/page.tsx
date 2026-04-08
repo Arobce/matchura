@@ -3,12 +3,12 @@
 import { use, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { PageContainer, Spinner, Button } from "@/components/ui";
-import { JobHeader, MatchScorePanel, ApplyModal } from "@/components/features/jobs";
+import { JobHeader, CandidateInsightsPanel, ApplyModal } from "@/components/features/jobs";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import type { Job, MatchScoreResponse } from "@/lib/types";
-import { CheckCircle2, Star, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -49,7 +49,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  const actions = isAuthenticated && user?.role === "Candidate" && (
+  const isCandidate = isAuthenticated && user?.role === "Candidate";
+
+  const actions = isCandidate && (
     <>
       {!applied ? (
         <Button onClick={() => setShowApplyModal(true)}>Apply Now</Button>
@@ -58,10 +60,6 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           <CheckCircle2 className="h-5 w-5" /> Applied
         </span>
       )}
-      <Button variant="outline" onClick={computeMatch} disabled={computing}>
-        {computing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-4 w-4" />}
-        Match Score
-      </Button>
     </>
   );
 
@@ -70,7 +68,14 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
       <Navbar />
       <PageContainer>
         <JobHeader job={job} actions={actions} />
-        {matchScore && <MatchScorePanel matchScore={matchScore} />}
+        {isCandidate && (
+          <CandidateInsightsPanel
+            jobId={id}
+            matchScore={matchScore}
+            onComputeMatch={computeMatch}
+            computing={computing}
+          />
+        )}
         <ApplyModal
           jobId={id}
           jobTitle={job.title}
