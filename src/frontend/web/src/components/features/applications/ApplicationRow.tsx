@@ -10,16 +10,16 @@ interface ApplicationRowProps {
 
 export function ApplicationRow({ application: app }: ApplicationRowProps) {
   return (
-    <div className="bg-surface-container-lowest p-5 rounded-xl editorial-shadow flex items-center justify-between transition-all hover:translate-x-1">
+    <Link
+      href={`/applications/${app.applicationId}`}
+      className="block bg-surface-container-lowest p-5 rounded-xl editorial-shadow flex items-center justify-between transition-all hover:translate-x-1 cursor-pointer"
+    >
       <div className="flex items-center gap-4">
         <FileText className="h-8 w-8 text-primary shrink-0" />
         <div>
-          <Link
-            href={`/jobs/${app.jobId}`}
-            className="text-on-surface font-semibold text-lg hover:text-primary transition-colors"
-          >
+          <span className="text-on-surface font-semibold text-lg">
             Job: {app.jobId.slice(0, 8)}...
-          </Link>
+          </span>
           <p className="text-on-surface-variant text-sm">
             Applied {formatDate(app.appliedAt)}
             {app.updatedAt !== app.appliedAt && (
@@ -32,6 +32,6 @@ export function ApplicationRow({ application: app }: ApplicationRowProps) {
         </div>
       </div>
       <StatusBadge status={app.status} />
-    </div>
+    </Link>
   );
 }
