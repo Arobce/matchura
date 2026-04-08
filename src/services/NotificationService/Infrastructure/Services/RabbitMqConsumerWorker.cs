@@ -64,10 +64,13 @@ public class RabbitMqConsumerWorker : BackgroundService
         await channel.ExchangeDeclareAsync(ExchangeName, ExchangeType.Topic, durable: true, cancellationToken: stoppingToken);
         var queueResult = await channel.QueueDeclareAsync("notification-events", durable: true, exclusive: false, autoDelete: false, cancellationToken: stoppingToken);
 
-        // Bind to all application events
+        // Bind to application events
         await channel.QueueBindAsync(queueResult.QueueName, ExchangeName, "ApplicationSubmittedEvent", cancellationToken: stoppingToken);
         await channel.QueueBindAsync(queueResult.QueueName, ExchangeName, "ApplicationStatusChangedEvent", cancellationToken: stoppingToken);
         await channel.QueueBindAsync(queueResult.QueueName, ExchangeName, "ApplicationWithdrawnEvent", cancellationToken: stoppingToken);
+
+        // Bind to job matching events
+        await channel.QueueBindAsync(queueResult.QueueName, ExchangeName, "JobMatchedEvent", cancellationToken: stoppingToken);
 
         var consumer = new AsyncEventingBasicConsumer(channel);
         consumer.ReceivedAsync += async (_, ea) =>
@@ -94,6 +97,9 @@ public class RabbitMqConsumerWorker : BackgroundService
                         break;
                     case "ApplicationWithdrawnEvent":
                         await HandleApplicationWithdrawn(body, notificationService, httpClientFactory, config);
+                        break;
+                    case "JobMatchedEvent":
+                        await HandleJobMatched(body, notificationService);
                         break;
                 }
 
@@ -178,6 +184,17 @@ public class RabbitMqConsumerWorker : BackgroundService
                 $"A candidate withdrew their application for {jobTitle}",
                 evt.ApplicationId.ToString(), "Application");
         }
+    }
+
+    private async Task HandleJobMatched(string body, INotificationService svc)
+    {
+        var evt = JsonSerializer.Deserialize<JobMatchedEvent>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        if (evt == null) return;
+
+        await svc.CreateNotificationAsync(
+            evt.CandidateId, "JobMatched", "New Job Match!",
+            $"You're a {evt.MatchScore:F0}% match for {evt.JobTitle}",
+            evt.JobId.ToString(), "Job");
     }
 
     private async Task<(string title, string? employerId)> GetJobInfoAsync(Guid jobId, IHttpClientFactory httpFactory, IConfiguration config)

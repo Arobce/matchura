@@ -105,12 +105,17 @@ services:
       JWT_ISSUER: ${JWT_ISSUER}
       JWT_AUDIENCE: ${JWT_AUDIENCE}
       REDIS_CONNECTION: ${REDIS_CONNECTION}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: matchura
+      RABBITMQ_PASS: matchura_dev
     ports:
       - "5003:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   application-service:
@@ -161,12 +166,17 @@ services:
       JOB_SERVICE_URL: "http://job-service:8080"
       APPLICATION_SERVICE_URL: "http://application-service:8080"
       PROFILE_SERVICE_URL: "http://profile-service:8080"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: matchura
+      RABBITMQ_PASS: matchura_dev
     ports:
       - "5005:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       job-service:
         condition: service_started
