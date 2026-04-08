@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui";
-import { Bell, Settings, LogOut, Menu, X } from "lucide-react";
+import { NotificationDropdown } from "@/components/features/notifications";
+import { Settings, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {
@@ -63,9 +64,7 @@ export function Navbar() {
                 <Button href="/employer/jobs/create" size="sm">Post a Job</Button>
               )}
               <div className="flex items-center gap-2 border-l border-outline-variant/20 ml-2 pl-4">
-                <button className="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors">
-                  <Bell className="h-5 w-5" />
-                </button>
+                <NotificationDropdown />
                 <button className="p-1.5 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors">
                   <Settings className="h-5 w-5" />
                 </button>

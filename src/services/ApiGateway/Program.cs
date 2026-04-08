@@ -87,7 +87,8 @@ builder.Services.AddHealthChecks()
     .AddUrlGroup(new Uri("http://profile-service:8080/health"), name: "profile-service", tags: ["downstream"])
     .AddUrlGroup(new Uri("http://job-service:8080/health"), name: "job-service", tags: ["downstream"])
     .AddUrlGroup(new Uri("http://application-service:8080/health"), name: "application-service", tags: ["downstream"])
-    .AddUrlGroup(new Uri("http://ai-service:8080/health"), name: "ai-service", tags: ["downstream"]);
+    .AddUrlGroup(new Uri("http://ai-service:8080/health"), name: "ai-service", tags: ["downstream"])
+    .AddUrlGroup(new Uri("http://notification-service:8080/health"), name: "notification-service", tags: ["downstream"]);
 
 var app = builder.Build();
 
@@ -106,6 +107,7 @@ app.Use(async (context, next) =>
 });
 
 app.UseCors();
+app.UseWebSockets();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
