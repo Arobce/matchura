@@ -5,8 +5,54 @@ on:
     branches: [dev]
 
 jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Run unit tests
+        run: dotnet test tests/AuthService.UnitTests tests/ProfileService.UnitTests tests/JobService.UnitTests tests/ApplicationService.UnitTests tests/AIService.UnitTests tests/NotificationService.UnitTests --no-build --logger "console;verbosity=normal"
+
+      - name: Run integration tests
+        run: dotnet test tests/JobService.IntegrationTests tests/ApplicationService.IntegrationTests --no-build --logger "console;verbosity=normal"
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: src/frontend/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit & component tests
+        run: npx vitest run
+
   deploy:
     name: Deploy Services
+    needs: [backend-tests, frontend-tests]
     runs-on: ubuntu-latest
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
