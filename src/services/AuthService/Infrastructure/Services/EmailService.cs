@@ -80,10 +80,7 @@ public class EmailService : IEmailService
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             using var client = new SmtpClient();
-            var useSsl = smtpPort == 465
-                ? MailKit.Security.SecureSocketOptions.SslOnConnect
-                : MailKit.Security.SecureSocketOptions.StartTls;
-            await client.ConnectAsync(smtpHost, smtpPort, useSsl, cts.Token);
+            await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls, cts.Token);
 
             if (!string.IsNullOrEmpty(smtpUser))
                 await client.AuthenticateAsync(smtpUser, smtpPass, cts.Token);
