@@ -15,7 +15,8 @@ public static class SentryExtensions
 
         builder.WebHost.UseSentry((SentryAspNetCoreOptions options) =>
         {
-            options.Dsn = builder.Configuration["SENTRY_DSN"] ?? "";
+            options.Dsn = builder.Configuration["SENTRY_DSN"]
+                ?? "https://2bc7a1294f541d1002ab6f88e3030213@o4511187626622976.ingest.us.sentry.io/4511187628589056";
             options.Environment = builder.Environment.EnvironmentName.ToLowerInvariant();
             options.Release = typeof(SentryExtensions).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()

@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5010";
 
 interface ApiError {
@@ -56,6 +58,12 @@ class ApiClient {
         errorData.title ||
         errorData.errors?.join(", ") ||
         `Request failed with status ${response.status}`;
+      Sentry.addBreadcrumb({
+        category: "api",
+        message: `${options.method ?? "GET"} ${path} → ${response.status}`,
+        level: "error",
+        data: { status: response.status, message },
+      });
       throw new Error(message);
     }
 

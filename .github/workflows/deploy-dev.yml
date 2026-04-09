@@ -88,3 +88,21 @@ jobs:
 
       - name: Deploy Frontend
         run: railway up --service frontend --dockerfile src/frontend/web/Dockerfile --detach
+
+  sentry-release:
+    name: Create Sentry Release
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: roshan-chapagain
+        with:
+          projects: matchura-backend matchura-frontend
+          environment: development
