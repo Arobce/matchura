@@ -3,8 +3,10 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMatchuraSentry(ServiceNames.Gateway);
 
 // YARP Reverse Proxy
 builder.Services.AddReverseProxy()
@@ -91,6 +93,7 @@ builder.Services.AddHealthChecks()
     .AddUrlGroup(new Uri("http://notification-service:8080/health"), name: "notification-service", tags: ["downstream"]);
 
 var app = builder.Build();
+app.UseMatchuraSentry();
 
 // Request logging middleware
 app.Use(async (context, next) =>

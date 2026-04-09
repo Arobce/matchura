@@ -9,9 +9,11 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel;
 using SharedKernel.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMatchuraSentry(ServiceNames.Application);
 
 // Database
 var connectionString = builder.Configuration["DATABASE_URL"]
@@ -70,6 +72,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+app.UseMatchuraSentry();
 
 // Auto-migrate on startup
 using (var scope = app.Services.CreateScope())

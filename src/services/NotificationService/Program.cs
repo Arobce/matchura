@@ -6,8 +6,10 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Infrastructure.Data;
 using NotificationService.Infrastructure.Hubs;
 using NotificationService.Infrastructure.Services;
+using SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMatchuraSentry(ServiceNames.Notification);
 
 // Database
 var connectionString = builder.Configuration["DATABASE_URL"]
@@ -90,6 +92,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseMatchuraSentry();
 
 // Auto-migrate on startup
 using (var scope = app.Services.CreateScope())

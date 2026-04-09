@@ -10,6 +10,7 @@ using AIService.Infrastructure.Data;
 using AIService.Infrastructure.Events;
 using AIService.Infrastructure.Services;
 using AIService.Infrastructure.TextExtraction;
+using SharedKernel;
 using SharedKernel.Events;
 using Amazon;
 using Amazon.S3;
@@ -20,6 +21,7 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMatchuraSentry(ServiceNames.AI);
 
 // Database
 var connectionString = builder.Configuration["DATABASE_URL"]
@@ -122,6 +124,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+app.UseMatchuraSentry();
 
 // Auto-migrate on startup
 using (var scope = app.Services.CreateScope())

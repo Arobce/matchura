@@ -8,8 +8,10 @@ using ProfileService.Application.Interfaces;
 using ProfileService.Application.Validators;
 using ProfileService.Infrastructure.Data;
 using ProfileService.Infrastructure.Services;
+using SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMatchuraSentry(ServiceNames.Profile);
 
 // Database
 var connectionString = builder.Configuration["DATABASE_URL"]
@@ -59,6 +61,7 @@ builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+app.UseMatchuraSentry();
 
 // Auto-migrate on startup
 using (var scope = app.Services.CreateScope())

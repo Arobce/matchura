@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMatchuraSentry(ServiceNames.Auth);
 
 // Database
 var connectionString = builder.Configuration["DATABASE_URL"]
@@ -75,6 +77,7 @@ builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+app.UseMatchuraSentry();
 
 // Migrate database and seed roles on startup
 using (var scope = app.Services.CreateScope())
