@@ -45,10 +45,10 @@ public class DocumentController : ControllerBase
         using var buffer = new MemoryStream();
         await file.OpenReadStream().CopyToAsync(buffer);
 
-        // Upload to S3
+        // Upload to S3 (AWS SDK disposes the input stream, so use a copy)
         var s3Key = $"coverletters/{userId}/{Guid.NewGuid()}/{file.FileName}";
-        buffer.Position = 0;
-        await _s3.UploadFileAsync(buffer, s3Key, file.ContentType);
+        using var s3Stream = new MemoryStream(buffer.ToArray());
+        await _s3.UploadFileAsync(s3Stream, s3Key, file.ContentType);
 
         // Extract text
         buffer.Position = 0;
