@@ -39,7 +39,8 @@ public static class SentryExtensions
 
     public static WebApplication UseMatchuraSentry(this WebApplication app)
     {
-        app.UseSentryTracing();
+        if (!app.Environment.IsEnvironment("testing"))
+            app.UseSentryTracing();
         return app;
     }
 }
