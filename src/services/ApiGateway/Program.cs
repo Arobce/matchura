@@ -39,14 +39,14 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // CORS — allow Next.js frontend
+var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',')
+    ?? new[] { "http://localhost:3000", "http://localhost:3001" };
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:3001"
-            )
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -83,14 +83,28 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Health checks for downstream services
-builder.Services.AddHealthChecks()
-    .AddUrlGroup(new Uri("http://auth-service:8080/health"), name: "auth-service", tags: ["downstream"])
-    .AddUrlGroup(new Uri("http://profile-service:8080/health"), name: "profile-service", tags: ["downstream"])
-    .AddUrlGroup(new Uri("http://job-service:8080/health"), name: "job-service", tags: ["downstream"])
-    .AddUrlGroup(new Uri("http://application-service:8080/health"), name: "application-service", tags: ["downstream"])
-    .AddUrlGroup(new Uri("http://ai-service:8080/health"), name: "ai-service", tags: ["downstream"])
-    .AddUrlGroup(new Uri("http://notification-service:8080/health"), name: "notification-service", tags: ["downstream"]);
+// Health checks for downstream services — reads YARP cluster addresses so prod overrides apply automatically
+var reverseProxyConfig = builder.Configuration.GetSection("ReverseProxy:Clusters");
+var healthChecks = builder.Services.AddHealthChecks();
+
+var clusterServiceMap = new Dictionary<string, string>
+{
+    ["auth-cluster"] = "auth-service",
+    ["profile-cluster"] = "profile-service",
+    ["job-cluster"] = "job-service",
+    ["application-cluster"] = "application-service",
+    ["ai-cluster"] = "ai-service",
+    ["notification-cluster"] = "notification-service"
+};
+
+foreach (var (cluster, serviceName) in clusterServiceMap)
+{
+    var address = reverseProxyConfig[$"{cluster}:Destinations:{serviceName}:Address"];
+    if (address != null)
+    {
+        healthChecks.AddUrlGroup(new Uri($"{address}/health"), name: serviceName, tags: ["downstream"]);
+    }
+}
 
 var app = builder.Build();
 app.UseMatchuraSentry();
