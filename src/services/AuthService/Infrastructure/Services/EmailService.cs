@@ -1,8 +1,8 @@
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using AuthService.Application.Interfaces;
-using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MimeKit;
 
 namespace AuthService.Infrastructure.Services;
 
@@ -10,11 +10,13 @@ public class EmailService : IEmailService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<EmailService> _logger;
+    private readonly HttpClient _httpClient;
 
-    public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+    public EmailService(IConfiguration configuration, ILogger<EmailService> logger, HttpClient httpClient)
     {
         _configuration = configuration;
         _logger = logger;
+        _httpClient = httpClient;
     }
 
     public async Task SendVerificationCodeAsync(string email, string code)
@@ -57,42 +59,68 @@ public class EmailService : IEmailService
 
     private async Task SendEmailAsync(string email, string subject, string html, string code, string label)
     {
-        var smtpHost = _configuration["Smtp:Host"];
-        var smtpPort = int.Parse(_configuration["Smtp:Port"] ?? "587");
-        var smtpUser = _configuration["Smtp:Username"];
-        var smtpPass = _configuration["Smtp:Password"];
-        var fromEmail = _configuration["Smtp:FromEmail"] ?? "noreply@matchura.dev";
-        var fromName = _configuration["Smtp:FromName"] ?? "Matchura";
+        var apiKey = _configuration["SendLayer:ApiKey"];
+        var fromEmail = _configuration["SendLayer:FromEmail"] ?? "REDACTED";
+        var fromName = _configuration["SendLayer:FromName"] ?? "Matchura";
 
-        if (string.IsNullOrEmpty(smtpHost))
+        if (string.IsNullOrEmpty(apiKey))
         {
-            _logger.LogWarning("SMTP not configured. {Label} code for {Email}: {Code}", label, email, code);
+            _logger.LogWarning("SendLayer not configured. {Label} code for {Email}: {Code}", label, email, code);
             return;
         }
 
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(fromName, fromEmail));
-        message.To.Add(MailboxAddress.Parse(email));
-        message.Subject = subject;
-        message.Body = new TextPart("html") { Text = html };
+        var payload = new SendLayerRequest
+        {
+            From = new EmailAddress { Name = fromName, Email = fromEmail },
+            To = [new EmailAddress { Name = email, Email = email }],
+            Subject = subject,
+            ContentType = "HTML",
+            HtmlContent = html,
+        };
 
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            using var client = new SmtpClient();
-            await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls, cts.Token);
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://console.sendlayer.com/api/v1/email");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+            request.Content = JsonContent.Create(payload);
 
-            if (!string.IsNullOrEmpty(smtpUser))
-                await client.AuthenticateAsync(smtpUser, smtpPass, cts.Token);
+            var response = await _httpClient.SendAsync(request, cts.Token);
 
-            await client.SendAsync(message, cts.Token);
-            await client.DisconnectAsync(true, cts.Token);
-
-            _logger.LogInformation("{Label} code sent to {Email}", label, email);
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("{Label} code sent to {Email}", label, email);
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync(cts.Token);
+                _logger.LogWarning("SendLayer returned {Status} for {Email}. {Label} code: {Code}. Response: {Body}",
+                    response.StatusCode, email, label, code, body);
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "SMTP send failed for {Email}. {Label} code: {Code}", email, label, code);
+            _logger.LogWarning(ex, "Email send failed for {Email}. {Label} code: {Code}", email, label, code);
         }
+    }
+
+    private class SendLayerRequest
+    {
+        public EmailAddress From { get; set; } = default!;
+        public List<EmailAddress> To { get; set; } = [];
+        public string Subject { get; set; } = string.Empty;
+        public string ContentType { get; set; } = "HTML";
+
+        [JsonPropertyName("HTMLContent")]
+        public string HtmlContent { get; set; } = string.Empty;
+    }
+
+    private class EmailAddress
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = string.Empty;
     }
 }

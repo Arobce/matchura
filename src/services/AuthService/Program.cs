@@ -63,7 +63,7 @@ builder.Services.AddAuthorization();
 
 // Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddHttpClient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 
 // Validators
