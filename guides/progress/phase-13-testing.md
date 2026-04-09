@@ -2,7 +2,7 @@
 
 ## Overview
 
-Added a full testing suite covering all 6 backend microservices and the Next.js frontend. The project now has **479 tests total** (349 backend + 130 frontend) across unit, integration, validator, contract, and component test layers.
+Added a full testing suite covering all 6 backend microservices and the Next.js frontend. The project now has **494 tests total** (349 backend + 130 frontend unit + 15 E2E) across unit, integration, validator, contract, component, and end-to-end test layers.
 
 ## What Was Built
 
@@ -88,16 +88,35 @@ Terminal states: Accepted, Rejected, Withdrawn
 - **MSW v2** for frontend API mocking
 - **Snapshot testing** with fixture files for LLM agent responses
 
+### Playwright E2E Tests (15 tests)
+| Spec File | Tests | Coverage |
+|-----------|-------|----------|
+| public-pages.spec.ts | 5 | Landing page, jobs listing, job detail, auth redirects |
+| auth-flow.spec.ts | 4 | Candidate/employer registration + verification + login, wrong password error, logout |
+| job-browsing.spec.ts | 4 | Jobs page loading, results display, job detail, pagination |
+| job-management.spec.ts | 2 | Employer job creation via API, create job page navigation |
+
+**E2E Stack:** Playwright (Chromium), direct service calls for seeding (bypasses gateway rate limiting)
+
+**Key E2E Patterns:**
+- Page objects: `LoginPage`, `RegisterPage`, `JobsPage`
+- API seeding helpers call services directly (ports 5001, 5003) to bypass API gateway rate limits
+- `getVerificationCode()` queries PostgreSQL directly via `psql` for email verification codes
+- `seedActiveJob()` creates and activates a job for test data
+
 ## Running Tests
 
 ```bash
 # Backend (all 349 tests)
 dotnet test
 
-# Frontend (all 130 tests)
+# Frontend unit/component (130 tests)
 cd src/frontend/web && npx vitest run
 
-# Watch mode (frontend)
+# Frontend E2E (15 tests — requires full Docker stack)
+cd src/frontend/web && npx playwright test
+
+# Watch mode (frontend unit)
 cd src/frontend/web && npx vitest
 ```
 
@@ -126,4 +145,19 @@ tests/
 ├── JobService.IntegrationTests/   (12 tests)
 ├── ApplicationService.IntegrationTests/ (16 tests)
 └── AIService.IntegrationTests/    (empty, ready for future)
+```
+
+### E2E test files added
+```
+src/frontend/web/
+├── playwright.config.ts
+└── e2e/
+    ├── helpers/api.ts             (seeding via direct service calls)
+    ├── pages/login.page.ts
+    ├── pages/register.page.ts
+    ├── pages/jobs.page.ts
+    ├── public-pages.spec.ts       (5 tests)
+    ├── auth-flow.spec.ts          (4 tests)
+    ├── job-browsing.spec.ts       (4 tests)
+    └── job-management.spec.ts     (2 tests)
 ```
