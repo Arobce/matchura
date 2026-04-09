@@ -115,7 +115,7 @@ public class ApplicationServiceImplTests : IDisposable
             ResumeUrl = "https://example.com/resume.pdf"
         };
 
-        var result = await _sut.CreateApplicationAsync(CandidateId, request);
+        var result = await _sut.CreateApplicationAsync(CandidateId, "Test Candidate", request);
 
         result.Should().NotBeNull();
         result.Status.Should().Be("Submitted");
@@ -123,10 +123,12 @@ public class ApplicationServiceImplTests : IDisposable
         result.JobId.Should().Be(JobId);
         result.CoverLetter.Should().Be("I am interested");
         result.ResumeUrl.Should().Be("https://example.com/resume.pdf");
+        result.CandidateName.Should().Be("Test Candidate");
 
         var saved = await _db.Applications.FindAsync(result.ApplicationId);
         saved.Should().NotBeNull();
         saved!.Status.Should().Be(ApplicationStatus.Submitted);
+        saved.CandidateName.Should().Be("Test Candidate");
 
         var events = _eventBus.GetEvents<ApplicationSubmittedEvent>();
         events.Should().HaveCount(1);
@@ -146,7 +148,7 @@ public class ApplicationServiceImplTests : IDisposable
             CoverLetter = "Another attempt"
         };
 
-        var act = () => _sut.CreateApplicationAsync(CandidateId, request);
+        var act = () => _sut.CreateApplicationAsync(CandidateId, "Test Candidate", request);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*already applied*");
