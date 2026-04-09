@@ -11,6 +11,9 @@ public static class SentryExtensions
     public static WebApplicationBuilder AddMatchuraSentry(
         this WebApplicationBuilder builder, string serviceName)
     {
+        if (builder.Environment.IsEnvironment("testing"))
+            return builder;
+
         var isDev = builder.Environment.IsDevelopment();
 
         builder.WebHost.UseSentry((SentryAspNetCoreOptions options) =>

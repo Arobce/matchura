@@ -9,6 +9,7 @@ obj/
 TestResults/
 guides
 docs
+guides/progress
 
 # Node
 node_modules/

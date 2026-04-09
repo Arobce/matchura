@@ -107,5 +107,5 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: roshan-chapagain
         with:
-          projects: matchura-backend matchura-frontend
+          projects: matchura-services matchura-frontend
           environment: production
