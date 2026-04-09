@@ -8,14 +8,17 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
     <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.11.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\shared\SharedKernel\SharedKernel.csproj" />
-    <ProjectReference Include="..\..\src\services\AuthService\AuthService.csproj" />
-    <ProjectReference Include="..\..\src\services\AIService\AIService.csproj" />
+    <ProjectReference Include="..\..\src\services\AuthService\AuthService.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\src\services\AIService\AIService.csproj" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
