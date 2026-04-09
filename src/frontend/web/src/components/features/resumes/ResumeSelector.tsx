@@ -68,8 +68,6 @@ export function ResumeSelector({ selectedId, onSelect }: ResumeSelectorProps) {
     }
   };
 
-  if (loading) return <Spinner />;
-
   const completed = resumes?.filter((r) => r.status === "Completed") ?? [];
 
   // Auto-select if there's only one completed resume and nothing selected
@@ -78,6 +76,8 @@ export function ResumeSelector({ selectedId, onSelect }: ResumeSelectorProps) {
       onSelect(completed[0].resumeId);
     }
   }, [completed.length, selectedId, onSelect]);
+
+  if (loading) return <Spinner />;
 
   return (
     <div className="space-y-3">
