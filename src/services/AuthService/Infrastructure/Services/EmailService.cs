@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using AuthService.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -83,7 +84,10 @@ public class EmailService : IEmailService
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://console.sendlayer.com/api/v1/email");
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
-            request.Content = JsonContent.Create(payload);
+            request.Content = JsonContent.Create(payload, options: new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = null, // PascalCase, not camelCase
+            });
 
             var response = await _httpClient.SendAsync(request, cts.Token);
 
