@@ -23,10 +23,16 @@ jobs:
         run: dotnet build --no-restore
 
       - name: Run unit tests
-        run: dotnet test tests/AuthService.UnitTests tests/ProfileService.UnitTests tests/JobService.UnitTests tests/ApplicationService.UnitTests tests/AIService.UnitTests tests/NotificationService.UnitTests --no-build --logger "console;verbosity=normal"
+        run: |
+          for project in AuthService ProfileService JobService ApplicationService AIService NotificationService; do
+            dotnet test "tests/${project}.UnitTests" --no-build --logger "console;verbosity=normal"
+          done
 
       - name: Run integration tests
-        run: dotnet test tests/JobService.IntegrationTests tests/ApplicationService.IntegrationTests --no-build --logger "console;verbosity=normal"
+        run: |
+          for project in JobService ApplicationService; do
+            dotnet test "tests/${project}.IntegrationTests" --no-build --logger "console;verbosity=normal"
+          done
 
   frontend-tests:
     name: Frontend Tests
