@@ -82,12 +82,15 @@ public class EmailService : IEmailService
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            using var request = new HttpRequestMessage(HttpMethod.Post, "https://console.sendlayer.com/api/v1/email");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
-            request.Content = JsonContent.Create(payload, options: new JsonSerializerOptions
+            var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = null, // PascalCase, not camelCase
             });
+            _logger.LogInformation("SendLayer request body: {Json}", json);
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://console.sendlayer.com/api/v1/email");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+            request.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(request, cts.Token);
 
