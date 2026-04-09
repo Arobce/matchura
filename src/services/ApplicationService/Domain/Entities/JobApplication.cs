@@ -6,6 +6,7 @@ public class JobApplication
 {
     public Guid ApplicationId { get; set; }
     public string CandidateId { get; set; } = string.Empty;
+    public string? CandidateName { get; set; }
     public Guid JobId { get; set; }
     public string? CoverLetter { get; set; }
     public string? CoverLetterUrl { get; set; }

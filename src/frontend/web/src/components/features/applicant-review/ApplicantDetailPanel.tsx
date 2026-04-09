@@ -5,15 +5,16 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 
 interface ApplicantDetailPanelProps {
   match: MatchScoreResponse;
+  nameMap?: Map<string, string>;
 }
 
-export function ApplicantDetailPanel({ match }: ApplicantDetailPanelProps) {
+export function ApplicantDetailPanel({ match, nameMap }: ApplicantDetailPanelProps) {
   return (
     <Card variant="lowest" padding="lg" className="rounded-2xl border border-outline-variant/15">
       <div className="flex items-center gap-4 mb-6">
         <ScoreDisplay score={match.overallScore} size="lg" />
         <div>
-          <p className="font-bold text-on-surface">Candidate: {match.candidateId.slice(0, 8)}...</p>
+          <p className="font-bold text-on-surface">{nameMap?.get(match.candidateId) || `Candidate ${match.candidateId.slice(0, 8)}...`}</p>
           <p className="text-xs text-on-surface-variant">Generated {new Date(match.generatedAt).toLocaleDateString()}</p>
         </div>
       </div>

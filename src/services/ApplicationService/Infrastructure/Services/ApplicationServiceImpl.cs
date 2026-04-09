@@ -34,7 +34,7 @@ public class ApplicationServiceImpl : IApplicationService
         _eventBus = eventBus;
     }
 
-    public async Task<ApplicationResponse> CreateApplicationAsync(string candidateId, CreateApplicationRequest request)
+    public async Task<ApplicationResponse> CreateApplicationAsync(string candidateId, string? candidateName, CreateApplicationRequest request)
     {
         // Check for duplicate application
         var existing = await _db.Applications
@@ -45,6 +45,7 @@ public class ApplicationServiceImpl : IApplicationService
         var application = new JobApplication
         {
             CandidateId = candidateId,
+            CandidateName = candidateName,
             JobId = request.JobId,
             CoverLetter = request.CoverLetter,
             CoverLetterUrl = request.CoverLetterUrl,
@@ -260,6 +261,7 @@ public class ApplicationServiceImpl : IApplicationService
     {
         ApplicationId = a.ApplicationId,
         CandidateId = a.CandidateId,
+        CandidateName = a.CandidateName,
         JobId = a.JobId,
         CoverLetter = a.CoverLetter,
         CoverLetterUrl = a.CoverLetterUrl,

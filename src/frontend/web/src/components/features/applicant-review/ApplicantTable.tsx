@@ -6,11 +6,12 @@ import type { MatchScoreResponse } from "@/lib/types";
 
 interface ApplicantTableProps {
   candidates: MatchScoreResponse[];
+  nameMap?: Map<string, string>;
   onStatusChange?: (candidateId: string, status: string) => void;
   onSelect?: (match: MatchScoreResponse) => void;
 }
 
-export function ApplicantTable({ candidates, onStatusChange, onSelect }: ApplicantTableProps) {
+export function ApplicantTable({ candidates, nameMap, onStatusChange, onSelect }: ApplicantTableProps) {
   if (candidates.length === 0) {
     return <p className="text-center py-10 text-on-surface-variant">No applicants yet.</p>;
   }
@@ -38,7 +39,7 @@ export function ApplicantTable({ candidates, onStatusChange, onSelect }: Applica
               >
                 <td className="px-6 py-5">
                   <span className="text-sm font-semibold text-on-surface">
-                    {match.candidateId.slice(0, 8)}...
+                    {nameMap?.get(match.candidateId) || `Candidate ${match.candidateId.slice(0, 8)}...`}
                   </span>
                 </td>
                 <td className="px-6 py-5">

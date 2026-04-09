@@ -105,6 +105,7 @@ export interface Skill {
 export interface Application {
   applicationId: string;
   candidateId: string;
+  candidateName?: string;
   jobId: string;
   coverLetter?: string;
   coverLetterUrl?: string;

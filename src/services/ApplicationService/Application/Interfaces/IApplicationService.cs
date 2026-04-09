@@ -4,7 +4,7 @@ namespace ApplicationService.Application.Interfaces;
 
 public interface IApplicationService
 {
-    Task<ApplicationResponse> CreateApplicationAsync(string candidateId, CreateApplicationRequest request);
+    Task<ApplicationResponse> CreateApplicationAsync(string candidateId, string? candidateName, CreateApplicationRequest request);
     Task<ApplicationListResponse> GetMyApplicationsAsync(string candidateId, int page, int pageSize);
     Task<ApplicationResponse> GetApplicationByIdAsync(Guid applicationId, string userId, string role);
     Task<ApplicationResponse> WithdrawApplicationAsync(string candidateId, Guid applicationId);

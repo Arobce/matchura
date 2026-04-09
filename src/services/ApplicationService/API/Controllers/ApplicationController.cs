@@ -53,7 +53,8 @@ public class ApplicationController : ControllerBase
 
         try
         {
-            var result = await _applicationService.CreateApplicationAsync(userId, request);
+            var candidateName = User.FindFirst(ClaimTypes.Name)?.Value;
+            var result = await _applicationService.CreateApplicationAsync(userId, candidateName, request);
             return CreatedAtAction(nameof(GetApplication), new { id = result.ApplicationId }, result);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("already applied"))

@@ -44,7 +44,7 @@ export function ApplicantHeader({ application, profile, score, jobId, onStatusCh
           {score !== null && <ScoreDisplay score={score} size="lg" />}
           <div>
             <h2 className="text-xl font-bold text-on-surface mb-1">
-              Candidate {application.candidateId.slice(0, 8)}...
+              {application.candidateName || `Candidate ${application.candidateId.slice(0, 8)}...`}
             </h2>
             <div className="flex items-center gap-3 mb-3">
               <StatusBadge status={application.status} />

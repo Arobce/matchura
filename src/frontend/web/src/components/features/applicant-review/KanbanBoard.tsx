@@ -38,6 +38,7 @@ export function KanbanBoard({ candidates, applications, jobId, onStatusChange }:
       return {
         applicationId: app.applicationId,
         candidateId: app.candidateId,
+        candidateName: app.candidateName,
         status: app.status,
         overallScore: match?.overallScore ?? 0,
         appliedAt: app.appliedAt,

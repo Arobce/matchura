@@ -23,6 +23,14 @@ export default function ApplicantReviewPage({ params }: { params: Promise<{ id: 
     return map;
   }, [appData]);
 
+  const nameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const app of appData?.items ?? []) {
+      if (app.candidateName) map.set(app.candidateId, app.candidateName);
+    }
+    return map;
+  }, [appData]);
+
   const handleStatusChange = async (applicationId: string, status: string) => {
     try {
       await api.patch(`/api/applications/${applicationId}/status`, { status });
@@ -72,13 +80,14 @@ export default function ApplicantReviewPage({ params }: { params: Promise<{ id: 
             <div className={selected ? "lg:col-span-7" : "lg:col-span-12"}>
               <ApplicantTable
                 candidates={matchData?.items ?? []}
+                nameMap={nameMap}
                 onStatusChange={handleTableStatusChange}
                 onSelect={setSelected}
               />
             </div>
             {selected && (
               <div className="lg:col-span-5">
-                <ApplicantDetailPanel match={selected} />
+                <ApplicantDetailPanel match={selected} nameMap={nameMap} />
               </div>
             )}
           </div>

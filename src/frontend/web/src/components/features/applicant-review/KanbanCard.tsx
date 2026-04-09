@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 export interface KanbanCardData {
   applicationId: string;
   candidateId: string;
+  candidateName?: string;
   status: string;
   overallScore: number;
   appliedAt: string;
@@ -53,7 +54,7 @@ export function KanbanCard({ data }: KanbanCardProps) {
       >
         <div className="flex items-center justify-between gap-2 mb-2">
           <span className="text-sm font-semibold text-on-surface truncate">
-            {data.candidateId.slice(0, 8)}...
+            {data.candidateName || `Candidate ${data.candidateId.slice(0, 8)}...`}
           </span>
           <ScoreDisplay score={data.overallScore} size="sm" />
         </div>
