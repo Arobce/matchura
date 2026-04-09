@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AIService.Application.DTOs;
 using AIService.Application.Interfaces;
 using AIService.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -91,10 +92,16 @@ public class ResumeController : ControllerBase
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? throw new UnauthorizedAccessException();
+        var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Candidate";
 
         try
         {
-            var resume = await _resumeService.GetResumeByIdAsync(id, userId);
+            ResumeResponse resume;
+            if (role == "Employer")
+                resume = await _resumeService.GetResumeByIdAsync(id);
+            else
+                resume = await _resumeService.GetResumeByIdAsync(id, userId);
+
             var url = await _s3.GetPresignedUrlAsync(resume.FileUrl, TimeSpan.FromMinutes(15));
             return Ok(new { downloadUrl = url });
         }

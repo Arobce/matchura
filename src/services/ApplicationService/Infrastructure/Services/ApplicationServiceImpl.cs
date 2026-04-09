@@ -42,11 +42,14 @@ public class ApplicationServiceImpl : IApplicationService
         if (existing != null)
             throw new InvalidOperationException("You have already applied to this job");
 
+        var jobTitle = await GetJobTitleAsync(request.JobId);
+
         var application = new JobApplication
         {
             CandidateId = candidateId,
             CandidateName = candidateName,
             JobId = request.JobId,
+            JobTitle = jobTitle,
             CoverLetter = request.CoverLetter,
             CoverLetterUrl = request.CoverLetterUrl,
             ResumeUrl = request.ResumeUrl,
@@ -237,6 +240,25 @@ public class ApplicationServiceImpl : IApplicationService
         return MapToResponse(application);
     }
 
+    private async Task<string?> GetJobTitleAsync(Guid jobId)
+    {
+        var jobServiceUrl = _configuration["JOB_SERVICE_URL"] ?? "http://job-service:8080";
+        try
+        {
+            var response = await _httpClient.GetAsync($"{jobServiceUrl}/api/jobs/{jobId}");
+            if (!response.IsSuccessStatusCode) return null;
+
+            var content = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(content);
+            return doc.RootElement.GetProperty("title").GetString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch job title for job {JobId}", jobId);
+            return null;
+        }
+    }
+
     private async Task<bool> VerifyJobOwnershipAsync(Guid jobId, string employerId)
     {
         var jobServiceUrl = _configuration["JOB_SERVICE_URL"] ?? "http://job-service:8080";
@@ -263,6 +285,7 @@ public class ApplicationServiceImpl : IApplicationService
         CandidateId = a.CandidateId,
         CandidateName = a.CandidateName,
         JobId = a.JobId,
+        JobTitle = a.JobTitle,
         CoverLetter = a.CoverLetter,
         CoverLetterUrl = a.CoverLetterUrl,
         ResumeUrl = a.ResumeUrl,

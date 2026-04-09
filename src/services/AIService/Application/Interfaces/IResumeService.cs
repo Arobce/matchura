@@ -6,6 +6,7 @@ public interface IResumeService
 {
     Task<ResumeUploadResponse> UploadResumeAsync(string candidateId, Stream fileStream, string fileName, string contentType);
     Task<ResumeResponse> GetResumeByIdAsync(Guid resumeId, string candidateId);
+    Task<ResumeResponse> GetResumeByIdAsync(Guid resumeId);
     Task<ResumeStatusResponse> GetResumeStatusAsync(Guid resumeId, string candidateId);
     Task<List<ResumeResponse>> GetResumesByCandidateAsync(string candidateId);
 }

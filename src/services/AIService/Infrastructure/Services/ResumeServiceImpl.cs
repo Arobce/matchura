@@ -115,6 +115,14 @@ public class ResumeServiceImpl : IResumeService
         return MapToResponse(resume);
     }
 
+    public async Task<ResumeResponse> GetResumeByIdAsync(Guid resumeId)
+    {
+        var resume = await _db.Resumes.FirstOrDefaultAsync(r => r.ResumeId == resumeId)
+            ?? throw new InvalidOperationException("Resume not found");
+
+        return MapToResponse(resume);
+    }
+
     public async Task<ResumeStatusResponse> GetResumeStatusAsync(Guid resumeId, string candidateId)
     {
         var resume = await _db.Resumes.FirstOrDefaultAsync(r => r.ResumeId == resumeId && r.CandidateId == candidateId)

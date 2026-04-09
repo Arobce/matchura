@@ -107,6 +107,7 @@ export interface Application {
   candidateId: string;
   candidateName?: string;
   jobId: string;
+  jobTitle?: string;
   coverLetter?: string;
   coverLetterUrl?: string;
   resumeUrl?: string;

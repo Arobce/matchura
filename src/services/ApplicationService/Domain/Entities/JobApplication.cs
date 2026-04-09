@@ -8,6 +8,7 @@ public class JobApplication
     public string CandidateId { get; set; } = string.Empty;
     public string? CandidateName { get; set; }
     public Guid JobId { get; set; }
+    public string? JobTitle { get; set; }
     public string? CoverLetter { get; set; }
     public string? CoverLetterUrl { get; set; }
     public string? ResumeUrl { get; set; }

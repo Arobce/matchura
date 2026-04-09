@@ -18,7 +18,7 @@ export function ApplicationRow({ application: app }: ApplicationRowProps) {
         <FileText className="h-8 w-8 text-primary shrink-0" />
         <div>
           <span className="text-on-surface font-semibold text-lg">
-            Job: {app.jobId.slice(0, 8)}...
+            {app.jobTitle || `Job: ${app.jobId.slice(0, 8)}...`}
           </span>
           <p className="text-on-surface-variant text-sm">
             Applied {formatDate(app.appliedAt)}
