@@ -76,15 +76,23 @@ public class EmailService : IEmailService
         message.Subject = subject;
         message.Body = new TextPart("html") { Text = html };
 
-        using var client = new SmtpClient();
-        await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            using var client = new SmtpClient();
+            await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls, cts.Token);
 
-        if (!string.IsNullOrEmpty(smtpUser))
-            await client.AuthenticateAsync(smtpUser, smtpPass);
+            if (!string.IsNullOrEmpty(smtpUser))
+                await client.AuthenticateAsync(smtpUser, smtpPass, cts.Token);
 
-        await client.SendAsync(message);
-        await client.DisconnectAsync(true);
+            await client.SendAsync(message, cts.Token);
+            await client.DisconnectAsync(true, cts.Token);
 
-        _logger.LogInformation("{Label} code sent to {Email}", label, email);
+            _logger.LogInformation("{Label} code sent to {Email}", label, email);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "SMTP send failed for {Email}. {Label} code: {Code}", email, label, code);
+        }
     }
 }
