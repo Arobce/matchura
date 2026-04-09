@@ -117,10 +117,10 @@ public class EmailService : IEmailService
 
     private class EmailAddress
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("Name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("email")]
+        [JsonPropertyName("Email")]
         public string Email { get; set; } = string.Empty;
     }
 }
