@@ -111,8 +111,8 @@ public static class DataSeeder
             (new ApplicationUser
             {
                 Id = "e1000000-0000-0000-0000-000000000001",
-                UserName = "hr@techcorp.com",
-                Email = "hr@techcorp.com",
+                UserName = "recruiting@google.com",
+                Email = "recruiting@google.com",
                 FullName = "Sarah Thompson",
                 EmailConfirmed = true,
                 AccountStatus = AccountStatus.Active,
@@ -121,8 +121,8 @@ public static class DataSeeder
             (new ApplicationUser
             {
                 Id = "e1000000-0000-0000-0000-000000000002",
-                UserName = "jobs@dataflow.io",
-                Email = "jobs@dataflow.io",
+                UserName = "jobs@stripe.com",
+                Email = "jobs@stripe.com",
                 FullName = "Michael Rivera",
                 EmailConfirmed = true,
                 AccountStatus = AccountStatus.Active,
@@ -131,9 +131,39 @@ public static class DataSeeder
             (new ApplicationUser
             {
                 Id = "e1000000-0000-0000-0000-000000000003",
-                UserName = "careers@cloudnine.dev",
-                Email = "careers@cloudnine.dev",
+                UserName = "careers@amazon.com",
+                Email = "careers@amazon.com",
                 FullName = "Jennifer Lee",
+                EmailConfirmed = true,
+                AccountStatus = AccountStatus.Active,
+            }, "Matchura1!", "Employer"),
+
+            (new ApplicationUser
+            {
+                Id = "e1000000-0000-0000-0000-000000000004",
+                UserName = "hiring@meta.com",
+                Email = "hiring@meta.com",
+                FullName = "Priya Sharma",
+                EmailConfirmed = true,
+                AccountStatus = AccountStatus.Active,
+            }, "Matchura1!", "Employer"),
+
+            (new ApplicationUser
+            {
+                Id = "e1000000-0000-0000-0000-000000000005",
+                UserName = "recruiting@microsoft.com",
+                Email = "recruiting@microsoft.com",
+                FullName = "James Wilson",
+                EmailConfirmed = true,
+                AccountStatus = AccountStatus.Active,
+            }, "Matchura1!", "Employer"),
+
+            (new ApplicationUser
+            {
+                Id = "e1000000-0000-0000-0000-000000000006",
+                UserName = "talent@netflix.com",
+                Email = "talent@netflix.com",
+                FullName = "Amanda Cruz",
                 EmailConfirmed = true,
                 AccountStatus = AccountStatus.Active,
             }, "Matchura1!", "Employer"),
