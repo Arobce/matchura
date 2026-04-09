@@ -88,9 +88,12 @@ public class ApplicationServiceImpl : IApplicationService
             .Take(pageSize)
             .ToListAsync();
 
+        var responses = items.Select(MapToResponse).ToList();
+        await EnrichResponsesAsync(responses);
+
         return new ApplicationListResponse
         {
-            Items = items.Select(MapToResponse).ToList(),
+            Items = responses,
             TotalCount = totalCount,
             Page = page,
             PageSize = pageSize,
@@ -115,7 +118,12 @@ public class ApplicationServiceImpl : IApplicationService
                 throw new UnauthorizedAccessException("You can only view applications for your own jobs");
         }
 
-        return MapToResponse(application);
+        var response = MapToResponse(application);
+        if (string.IsNullOrEmpty(response.JobTitle))
+        {
+            response.JobTitle = await GetJobTitleAsync(application.JobId);
+        }
+        return response;
     }
 
     public async Task<ApplicationResponse> WithdrawApplicationAsync(string candidateId, Guid applicationId)
@@ -167,9 +175,12 @@ public class ApplicationServiceImpl : IApplicationService
             .Take(pageSize)
             .ToListAsync();
 
+        var responses = items.Select(MapToResponse).ToList();
+        await EnrichResponsesAsync(responses);
+
         return new ApplicationListResponse
         {
-            Items = items.Select(MapToResponse).ToList(),
+            Items = responses,
             TotalCount = totalCount,
             Page = page,
             PageSize = pageSize,
@@ -277,6 +288,28 @@ public class ApplicationServiceImpl : IApplicationService
             _logger.LogWarning(ex, "Failed to verify job ownership for job {JobId}", jobId);
             return false;
         }
+    }
+
+    private async Task<List<ApplicationResponse>> EnrichResponsesAsync(List<ApplicationResponse> responses)
+    {
+        var missing = responses.Where(r => string.IsNullOrEmpty(r.JobTitle)).ToList();
+        if (missing.Count == 0) return responses;
+
+        var jobIds = missing.Select(r => r.JobId).Distinct().ToList();
+        var titleMap = new Dictionary<Guid, string>();
+        foreach (var jobId in jobIds)
+        {
+            var title = await GetJobTitleAsync(jobId);
+            if (title != null) titleMap[jobId] = title;
+        }
+
+        foreach (var r in missing)
+        {
+            if (titleMap.TryGetValue(r.JobId, out var title))
+                r.JobTitle = title;
+        }
+
+        return responses;
     }
 
     private static ApplicationResponse MapToResponse(JobApplication a) => new()
