@@ -58,9 +58,10 @@ public class ResumeServiceImpl : IResumeService
 
         try
         {
-            // Upload to S3
+            // Upload to S3 (AWS SDK disposes the input stream, so use a copy)
             buffer.Position = 0;
-            await _s3.UploadFileAsync(buffer, s3Key, contentType);
+            using var s3Stream = new MemoryStream(buffer.ToArray());
+            await _s3.UploadFileAsync(s3Stream, s3Key, contentType);
 
             // Extract text
             buffer.Position = 0;
