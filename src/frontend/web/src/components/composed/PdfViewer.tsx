@@ -11,15 +11,16 @@ interface PdfViewerProps {
   type: "resume" | "coverLetter";
 }
 
-function isPdf(url: string): boolean {
-  return url.toLowerCase().endsWith(".pdf");
+function isPdfUrl(url: string): boolean {
+  // Strip query params before checking extension
+  const path = url.split("?")[0];
+  return path.toLowerCase().endsWith(".pdf");
 }
 
 export function PdfViewer({ url, label, type }: PdfViewerProps) {
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const canEmbed = isPdf(url);
 
   useEffect(() => {
     const fetchUrl = async () => {
@@ -37,12 +38,8 @@ export function PdfViewer({ url, label, type }: PdfViewerProps) {
         setLoading(false);
       }
     };
-    if (canEmbed) {
-      fetchUrl();
-    } else {
-      setLoading(false);
-    }
-  }, [url, type, canEmbed]);
+    fetchUrl();
+  }, [url, type]);
 
   if (loading) {
     return (
@@ -52,42 +49,38 @@ export function PdfViewer({ url, label, type }: PdfViewerProps) {
     );
   }
 
-  if (!canEmbed) {
-    const fileName = url.split("/").pop() || label;
-    return (
-      <div className="flex items-center gap-3 p-4 rounded-lg border border-outline-variant/20 bg-surface-container-low">
-        <FileText className="h-8 w-8 text-primary shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-on-surface truncate">{fileName}</p>
-          <p className="text-xs text-on-surface-variant">
-            This file type can&apos;t be previewed in the browser
-          </p>
-        </div>
-        <button
-          onClick={async () => {
-            try {
-              let result: { downloadUrl: string };
-              if (type === "resume") {
-                result = await api.get<{ downloadUrl: string }>(`/api/resumes/${url}/download`);
-              } else {
-                result = await api.get<{ downloadUrl: string }>(`/api/documents/download?key=${encodeURIComponent(url)}`);
-              }
-              window.open(result.downloadUrl, "_blank");
-            } catch { /* ignore */ }
-          }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary-container/10 rounded-lg hover:bg-primary-container/20 transition-colors"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Download
-        </button>
-      </div>
-    );
-  }
-
   if (error || !fileUrl) {
     return (
       <div className="flex items-center justify-center h-32 bg-surface-container-low rounded-lg">
         <p className="text-sm text-on-surface-variant">Failed to load {label.toLowerCase()}</p>
+      </div>
+    );
+  }
+
+  const canEmbed = isPdfUrl(fileUrl);
+
+  if (!canEmbed) {
+    const fileName = decodeURIComponent(fileUrl.split("?")[0].split("/").pop() || label);
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-3 p-4 rounded-lg border border-outline-variant/20 bg-surface-container-low">
+          <FileText className="h-8 w-8 text-primary shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-on-surface truncate">{fileName}</p>
+            <p className="text-xs text-on-surface-variant">
+              This file type can&apos;t be previewed in the browser
+            </p>
+          </div>
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary-container/10 rounded-lg hover:bg-primary-container/20 transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Download
+          </a>
+        </div>
       </div>
     );
   }
