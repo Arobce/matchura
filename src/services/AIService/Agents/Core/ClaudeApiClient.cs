@@ -37,7 +37,6 @@ public class ClaudeApiClient
         };
 
         var json = JsonSerializer.Serialize(requestBody, JsonOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var retryCount = 0;
         const int maxRetries = 3;
@@ -46,17 +45,20 @@ public class ClaudeApiClient
         {
             try
             {
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("v1/messages", content, ct);
 
-                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                if (response.StatusCode == HttpStatusCode.TooManyRequests
+                    || (int)response.StatusCode == 529)
                 {
                     retryCount++;
                     if (retryCount > maxRetries)
                         throw new InvalidOperationException("Claude API rate limit exceeded after retries");
 
-                    var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount + 1));
-                    _logger.LogWarning("Rate limited by Claude API, retrying in {Delay}s (attempt {Attempt}/{Max})",
-                        delay.TotalSeconds, retryCount, maxRetries);
+                    var retryAfter = response.Headers.RetryAfter?.Delta;
+                    var delay = retryAfter ?? TimeSpan.FromSeconds(Math.Pow(2, retryCount + 1));
+                    _logger.LogWarning("Claude API overloaded ({StatusCode}), retrying in {Delay}s (attempt {Attempt}/{Max})",
+                        (int)response.StatusCode, delay.TotalSeconds, retryCount, maxRetries);
                     await Task.Delay(delay, ct);
                     continue;
                 }
