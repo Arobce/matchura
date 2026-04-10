@@ -47,10 +47,10 @@ export function Combobox({ label, options, value, onChange, onCreateNew, placeho
   }, []);
 
   const filtered = options.filter((o) =>
-    o.label.toLowerCase().includes(query.toLowerCase())
+    o.label?.toLowerCase().includes(query.toLowerCase())
   );
 
-  const exactMatch = options.some((o) => o.label.toLowerCase() === query.toLowerCase());
+  const exactMatch = options.some((o) => o.label?.toLowerCase() === query.toLowerCase());
   const showCreate = onCreateNew && query.trim().length > 0 && !exactMatch;
 
   return (
