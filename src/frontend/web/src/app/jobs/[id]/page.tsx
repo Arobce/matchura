@@ -1,13 +1,13 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { PageContainer, Spinner, Button } from "@/components/ui";
 import { JobHeader, CandidateInsightsPanel, ApplyModal } from "@/components/features/jobs";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
-import type { Job, MatchScoreResponse } from "@/lib/types";
+import type { Job, MatchScoreResponse, MatchListResponse } from "@/lib/types";
 import { CheckCircle2 } from "lucide-react";
 
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,6 +18,19 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [matchScore, setMatchScore] = useState<MatchScoreResponse | null>(null);
   const [computing, setComputing] = useState(false);
+
+  const isCandidate = isAuthenticated && user?.role === "Candidate";
+
+  // Auto-load existing match score for candidates
+  useEffect(() => {
+    if (!isCandidate) return;
+    api.get<MatchListResponse>("/api/matching/candidate/me/jobs?pageSize=100")
+      .then((data) => {
+        const existing = data.items.find((m) => m.jobId === id);
+        if (existing) setMatchScore(existing);
+      })
+      .catch(() => {});
+  }, [isCandidate, id]);
 
   const computeMatch = async () => {
     setComputing(true);
@@ -48,8 +61,6 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
       </>
     );
   }
-
-  const isCandidate = isAuthenticated && user?.role === "Candidate";
 
   const actions = isCandidate && (
     <>
