@@ -53,8 +53,8 @@ export function createMockJob(overrides: Partial<Job> = {}): Job {
     experienceYearsMax: 10,
     status: 'Active',
     skills: [
-      { skillId: 'skill-1', name: 'React', category: 'Frontend', importanceLevel: 'Required' },
-      { skillId: 'skill-2', name: 'TypeScript', category: 'Language', importanceLevel: 'Required' },
+      { skillId: 'skill-1', skillName: 'React', skillCategory: 'Frontend', importanceLevel: 'Required' },
+      { skillId: 'skill-2', skillName: 'TypeScript', skillCategory: 'Language', importanceLevel: 'Required' },
     ],
     createdAt: '2026-03-01T00:00:00Z',
     updatedAt: '2026-03-01T00:00:00Z',
