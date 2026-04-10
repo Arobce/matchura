@@ -1,0 +1,332 @@
+{
+  "info": {
+    "name": "Matchura Job API",
+    "_postman_id": "matchura-job-001",
+    "description": "Job posting and skill management endpoints. Employers create and manage jobs, candidates browse and search.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5003" },
+    { "key": "auth_url", "value": "http://localhost:5001" },
+    { "key": "employer_token", "value": "" },
+    { "key": "job_id", "value": "" },
+    { "key": "skill_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Login as Employer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) pm.collectionVariables.set('employer_token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"TestPass1\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skills",
+      "item": [
+        {
+          "name": "List All Skills",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/skills",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills"]
+            }
+          }
+        },
+        {
+          "name": "List Skills by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/skills?category=Programming",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills"],
+              "query": [{ "key": "category", "value": "Programming" }]
+            }
+          }
+        },
+        {
+          "name": "Get Skill Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/skills/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Create Skill",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('skill_id', json.skillId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skillName\": \"Rust\",\n  \"skillCategory\": \"Programming\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/skills",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "List All Jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs"]
+            }
+          }
+        },
+        {
+          "name": "List Jobs with Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobs?search=developer&location=Remote&employmentType=FullTime&minSalary=50000&page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                { "key": "search", "value": "developer" },
+                { "key": "location", "value": "Remote" },
+                { "key": "employmentType", "value": "FullTime" },
+                { "key": "minSalary", "value": "50000" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Job by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "{{job_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Job",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('job_id', json.jobId);",
+                  "    pm.test('Job created', function() { pm.expect(json.jobId).to.be.a('string'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Backend Developer\",\n  \"description\": \"We are looking for a senior backend developer with experience in .NET and distributed systems.\",\n  \"location\": \"Remote\",\n  \"employmentType\": \"FullTime\",\n  \"experienceRequired\": 5,\n  \"salaryMin\": 120000,\n  \"salaryMax\": 160000,\n  \"skills\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/jobs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs"]
+            },
+            "description": "Skills array takes objects with skillId (GUID) and importanceLevel (Required, Preferred, NiceToHave). Get skill IDs from the List Skills endpoint first."
+          }
+        },
+        {
+          "name": "Update Job",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Backend Developer (Updated)\",\n  \"description\": \"Updated description with more details about the role.\",\n  \"location\": \"Remote\",\n  \"employmentType\": \"FullTime\",\n  \"experienceRequired\": 4,\n  \"salaryMin\": 130000,\n  \"salaryMax\": 170000,\n  \"skills\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "{{job_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Job Status (Activate)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.test('Status is Active', function() { pm.expect(json.jobStatus).to.eql('Active'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/jobs/{{job_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "{{job_id}}", "status"]
+            },
+            "description": "Status values: 0 = Draft, 1 = Active, 2 = Closed, 3 = Expired. Activating triggers JobPublishedEvent for auto-matching."
+          }
+        },
+        {
+          "name": "Update Job Status (Close)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/jobs/{{job_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "{{job_id}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "List My Jobs (Employer)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/jobs/my-jobs?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "my-jobs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Job",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Returns 204', function() { pm.response.to.have.status(204); });"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "{{job_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}

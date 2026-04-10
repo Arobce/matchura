@@ -8,7 +8,6 @@ obj/
 *.DotSettings.user
 TestResults/
 guides
-docs
 guides/progress
 
 # Node

@@ -1,0 +1,400 @@
+{
+  "info": {
+    "name": "Matchura AI API",
+    "_postman_id": "matchura-ai-001",
+    "description": "AI service endpoints for resume management, match scoring, skill gap analysis, and employer analytics. Powered by Claude API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5005" },
+    { "key": "auth_url", "value": "http://localhost:5001" },
+    { "key": "candidate_token", "value": "" },
+    { "key": "employer_token", "value": "" },
+    { "key": "resume_id", "value": "" },
+    { "key": "job_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Login as Candidate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) pm.collectionVariables.set('candidate_token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Employer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) pm.collectionVariables.set('employer_token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"TestPass1\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resumes",
+      "item": [
+        {
+          "name": "Upload Resume (PDF/DOCX)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('resume_id', json.resumeId);",
+                  "    pm.test('Resume uploaded', function() { pm.expect(json.resumeId).to.be.a('string'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Select a PDF or DOCX resume file (max 10MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resumes/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resumes", "upload"]
+            },
+            "description": "Upload a PDF or DOCX resume. The file is stored in S3 and queued for background parsing by Claude AI."
+          }
+        },
+        {
+          "name": "Get My Resumes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/resumes/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resumes", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get Resume by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/resumes/{{resume_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resumes", "{{resume_id}}"]
+            },
+            "description": "Returns full resume data including parsed content (personal info, experience, education, skills) if parsing is complete."
+          }
+        },
+        {
+          "name": "Get Resume Parse Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/resumes/{{resume_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resumes", "{{resume_id}}", "status"]
+            },
+            "description": "Check parsing progress. Status values: Uploaded, Extracting, Parsing, Completed, Failed"
+          }
+        },
+        {
+          "name": "Download Resume (Presigned URL)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/resumes/{{resume_id}}/download",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resumes", "{{resume_id}}", "download"]
+            },
+            "description": "Returns a presigned S3 URL valid for 15 minutes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Upload Document (PDF)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Select a PDF file (max 5MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "upload"]
+            },
+            "description": "Upload a PDF document (cover letters, etc). Returns S3 key and extracted text."
+          }
+        },
+        {
+          "name": "Download Document (Presigned URL)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/documents/download?key=documents/your-file-key.pdf",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "download"],
+              "query": [{ "key": "key", "value": "documents/your-file-key.pdf" }]
+            },
+            "description": "Pass the S3 key from the upload response. Returns a presigned URL valid for 15 minutes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matching",
+      "item": [
+        {
+          "name": "Compute Match Score",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.test('Has overall score', function() { pm.expect(json.overallScore).to.be.a('number'); });",
+                  "    pm.test('Has skill score', function() { pm.expect(json.skillScore).to.be.a('number'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobId\": \"{{job_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/matching/compute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matching", "compute"]
+            },
+            "description": "Computes a match score (0-100) between the authenticated candidate and the specified job using Claude AI. Returns skill, experience, and education sub-scores plus strengths and gaps."
+          }
+        },
+        {
+          "name": "Get Candidates for Job (Employer)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/matching/job/{{job_id}}/candidates?page=1&pageSize=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matching", "job", "{{job_id}}", "candidates"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" }
+              ]
+            },
+            "description": "Returns all candidates matched against this job, sorted by score."
+          }
+        },
+        {
+          "name": "Get Recommended Jobs (Candidate)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/matching/candidate/me/jobs?page=1&pageSize=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matching", "candidate", "me", "jobs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" }
+              ]
+            },
+            "description": "Returns jobs matched to the authenticated candidate, sorted by match score."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skill Gap",
+      "item": [
+        {
+          "name": "Analyze Skill Gap",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobId\": \"{{job_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/skillgap/analyze",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skillgap", "analyze"]
+            },
+            "description": "Analyzes the gap between the candidate's skills and the job requirements using Claude AI. Returns missing skills, learning recommendations, and readiness score."
+          }
+        },
+        {
+          "name": "Get Skill Gap Report for Job",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/skillgap/candidate/me/job/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skillgap", "candidate", "me", "job", "{{job_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All My Skill Gap Reports",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/skillgap/candidate/me/reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skillgap", "candidate", "me", "reports"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics (Employer)",
+      "item": [
+        {
+          "name": "Get Employer Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/employer/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "employer", "dashboard"]
+            },
+            "description": "Returns overall stats: total active jobs, total applications, average match score, pipeline breakdown, and top skills in demand."
+          }
+        },
+        {
+          "name": "Get Job Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/employer/job/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "employer", "job", "{{job_id}}"]
+            },
+            "description": "Returns analytics for a specific job: applicant count, average match score, score distribution, pipeline breakdown, top candidates, common skill gaps."
+          }
+        },
+        {
+          "name": "Get Hiring Trends",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/employer/trends",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "employer", "trends"]
+            },
+            "description": "Returns trend data: applications per week, average score per week, most requested skills."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "info": {
+    "name": "Matchura Application API",
+    "_postman_id": "matchura-application-001",
+    "description": "Job application management endpoints. Candidates submit applications, employers review and update status.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5004" },
+    { "key": "auth_url", "value": "http://localhost:5001" },
+    { "key": "candidate_token", "value": "" },
+    { "key": "employer_token", "value": "" },
+    { "key": "application_id", "value": "" },
+    { "key": "job_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Login as Candidate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) pm.collectionVariables.set('candidate_token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Employer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.token) pm.collectionVariables.set('employer_token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"TestPass1\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/auth/login",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Candidate",
+      "item": [
+        {
+          "name": "Submit Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('application_id', json.applicationId);",
+                  "    pm.test('Application created', function() { pm.expect(json.applicationId).to.be.a('string'); });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobId\": \"{{job_id}}\",\n  \"coverLetter\": \"I am excited to apply for this position. My experience in backend development makes me a strong fit.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications"]
+            },
+            "description": "Set the job_id variable first. You can also include coverLetterUrl and resumeUrl fields."
+          }
+        },
+        {
+          "name": "Get My Applications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/applications/my-applications?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "my-applications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Application Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/applications/{{application_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "{{application_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Withdraw Application",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/applications/{{application_id}}/withdraw",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "{{application_id}}", "withdraw"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employer",
+      "item": [
+        {
+          "name": "Get Applications for Job",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/applications/job/{{job_id}}?page=1&pageSize=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "job", "{{job_id}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Reviewed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications/{{application_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "{{application_id}}", "status"]
+            },
+            "description": "Status values: Submitted, Reviewed, Shortlisted, Accepted, Rejected, Withdrawn"
+          }
+        },
+        {
+          "name": "Update Employer Notes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Strong candidate, good experience with .NET. Schedule a follow-up interview.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications/{{application_id}}/notes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "{{application_id}}", "notes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}

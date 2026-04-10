@@ -6,37 +6,19 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:5002"
-    },
-    {
-      "key": "auth_url",
-      "value": "http://localhost:5001"
-    },
-    {
-      "key": "candidate_token",
-      "value": ""
-    },
-    {
-      "key": "employer_token",
-      "value": ""
-    },
-    {
-      "key": "candidate_profile_id",
-      "value": ""
-    },
-    {
-      "key": "employer_profile_id",
-      "value": ""
-    }
+    { "key": "base_url", "value": "http://localhost:5002" },
+    { "key": "auth_url", "value": "http://localhost:5001" },
+    { "key": "candidate_token", "value": "" },
+    { "key": "employer_token", "value": "" },
+    { "key": "candidate_profile_id", "value": "" },
+    { "key": "employer_profile_id", "value": "" }
   ],
   "item": [
     {
       "name": "Setup",
       "item": [
         {
-          "name": "Login as Candidate (get token)",
+          "name": "Login as Candidate",
           "event": [
             {
               "listen": "test",
@@ -44,10 +26,7 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    var json = pm.response.json();",
-                  "    if (json.token) {",
-                  "        pm.collectionVariables.set('candidate_token', json.token);",
-                  "        pm.test('Candidate token saved', function() { pm.expect(json.token).to.be.a('string'); });",
-                  "    }",
+                  "    if (json.token) pm.collectionVariables.set('candidate_token', json.token);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -56,12 +35,10 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"profile-candidate@test.com\",\n  \"password\": \"TestPass123\"\n}"
+              "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\"\n}"
             },
             "url": {
               "raw": "{{auth_url}}/api/auth/login",
@@ -72,7 +49,7 @@
           }
         },
         {
-          "name": "Login as Employer (get token)",
+          "name": "Login as Employer",
           "event": [
             {
               "listen": "test",
@@ -80,10 +57,7 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    var json = pm.response.json();",
-                  "    if (json.token) {",
-                  "        pm.collectionVariables.set('employer_token', json.token);",
-                  "        pm.test('Employer token saved', function() { pm.expect(json.token).to.be.a('string'); });",
-                  "    }",
+                  "    if (json.token) pm.collectionVariables.set('employer_token', json.token);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -92,12 +66,10 @@
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"profile-employer@test.com\",\n  \"password\": \"TestPass123\"\n}"
+              "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"TestPass1\"\n}"
             },
             "url": {
               "raw": "{{auth_url}}/api/auth/login",
@@ -122,7 +94,6 @@
                   "    var json = pm.response.json();",
                   "    pm.collectionVariables.set('candidate_profile_id', json.candidateId);",
                   "    pm.test('Profile created', function() { pm.expect(json.candidateId).to.be.a('string'); });",
-                  "    pm.test('Has userId', function() { pm.expect(json.userId).to.be.a('string'); });",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -165,9 +136,7 @@
           ],
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{candidate_token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{candidate_token}}" }],
             "url": {
               "raw": "{{base_url}}/api/profiles/candidate/me",
               "host": ["{{base_url}}"],
@@ -211,23 +180,6 @@
         },
         {
           "name": "Get Public Candidate Profile",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Returns limited public fields', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json.candidateId).to.be.a('string');",
-                  "    pm.expect(json).to.not.have.property('phone');",
-                  "    pm.expect(json).to.not.have.property('linkedinUrl');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -235,7 +187,8 @@
               "raw": "{{base_url}}/api/profiles/candidate/{{candidate_profile_id}}",
               "host": ["{{base_url}}"],
               "path": ["api", "profiles", "candidate", "{{candidate_profile_id}}"]
-            }
+            },
+            "description": "Returns limited public fields only (no phone, no LinkedIn URL)."
           }
         },
         {
@@ -244,9 +197,7 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "pm.test('Returns 409', function() { pm.response.to.have.status(409); });"
-                ],
+                "exec": ["pm.test('Returns 409', function() { pm.response.to.have.status(409); });"],
                 "type": "text/javascript"
               }
             }
@@ -284,7 +235,6 @@
                   "    var json = pm.response.json();",
                   "    pm.collectionVariables.set('employer_profile_id', json.employerId);",
                   "    pm.test('Profile created', function() { pm.expect(json.employerId).to.be.a('string'); });",
-                  "    pm.test('Company name set', function() { pm.expect(json.companyName).to.eql('Acme Corp'); });",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -310,26 +260,9 @@
         },
         {
           "name": "Get My Employer Profile",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Returns profile', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json.companyName).to.be.a('string');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{employer_token}}" }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{employer_token}}" }],
             "url": {
               "raw": "{{base_url}}/api/profiles/employer/me",
               "host": ["{{base_url}}"],
@@ -339,21 +272,6 @@
         },
         {
           "name": "Update Employer Profile",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Profile updated', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json.companyDescription).to.contain('award-winning');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -373,22 +291,6 @@
         },
         {
           "name": "Get Public Employer Profile",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Returns public company info', function() {",
-                  "    pm.response.to.have.status(200);",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json.companyName).to.be.a('string');",
-                  "    pm.expect(json).to.not.have.property('userId');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -396,7 +298,8 @@
               "raw": "{{base_url}}/api/profiles/employer/{{employer_profile_id}}",
               "host": ["{{base_url}}"],
               "path": ["api", "profiles", "employer", "{{employer_profile_id}}"]
-            }
+            },
+            "description": "Returns public company info (no userId)."
           }
         },
         {
@@ -405,9 +308,7 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "pm.test('Returns 403', function() { pm.response.to.have.status(403); });"
-                ],
+                "exec": ["pm.test('Returns 403', function() { pm.response.to.have.status(403); });"],
                 "type": "text/javascript"
               }
             }

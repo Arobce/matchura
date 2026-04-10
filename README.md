@@ -2,6 +2,16 @@
 
 An intelligent job matching platform built on a microservices architecture that uses Claude AI to parse resumes, compute candidate-job match scores, and perform skill gap analysis — delivering data-driven hiring decisions in real time.
 
+## Screenshots
+
+### AI Match Scoring
+![Match Score](screenshots/match-score.png)
+Candidates and employers see a detailed match breakdown with overall score, skill/experience/education sub-scores, strengths, and gaps.
+
+### Skill Gap Analysis
+![Skill Gap Analysis](screenshots/skill-gap-analysis.png)
+Candidates get an AI-generated readiness report with identified skill gaps, importance levels, a development roadmap, and core strengths.
+
 ## Highlights
 
 - **AI-Powered Matching** — Claude API agents parse resumes into structured data, score candidates against jobs (0-100 with breakdowns), and identify skill gaps with learning recommendations

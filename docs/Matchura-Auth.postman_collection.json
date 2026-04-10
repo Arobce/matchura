@@ -2,18 +2,12 @@
   "info": {
     "name": "Matchura Auth API",
     "_postman_id": "matchura-auth-001",
-    "description": "Authentication endpoints for the Matchura job matching platform",
+    "description": "Authentication endpoints for the Matchura job matching platform. Handles registration, login, email verification, and two-factor authentication.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:5001"
-    },
-    {
-      "key": "token",
-      "value": ""
-    }
+    { "key": "base_url", "value": "http://localhost:5001" },
+    { "key": "token", "value": "" }
   ],
   "item": [
     {
@@ -48,19 +42,123 @@
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\",\n  \"fullName\": \"Jane Doe\",\n  \"role\": \"Candidate\"\n}"
+          "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"role\": \"Candidate\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/auth/register",
           "host": ["{{base_url}}"],
           "path": ["api", "auth", "register"]
         },
-        "description": "After registering, check your email for a 6-digit verification code. Or get it from DB: docker exec matchura-postgres-1 psql -U matchura_admin -d auth_db -t -c \"SELECT \\\"EmailVerificationCode\\\" FROM \\\"AspNetUsers\\\" WHERE \\\"Email\\\"='candidate@test.com';\""
+        "description": "Register a new candidate. A 6-digit verification code will be emailed to the address provided."
+      }
+    },
+    {
+      "name": "Register - Employer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var json = pm.response.json();",
+              "    pm.test('Requires email verification', function() { pm.expect(json.requiresEmailVerification).to.be.true; });",
+              "    pm.test('Role is Employer', function() { pm.expect(json.role).to.eql('Employer'); });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"TestPass1\",\n  \"firstName\": \"Acme\",\n  \"lastName\": \"HR\",\n  \"role\": \"Employer\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Register - Admin (should fail)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Rejects Admin role', function() { pm.response.to.have.status(400); });"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"TestPass1\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"role\": \"Admin\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Register - Weak Password (should fail)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Rejects weak password', function() { pm.response.to.have.status(400); });"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"weak@test.com\",\n  \"password\": \"123\",\n  \"firstName\": \"Weak\",\n  \"lastName\": \"Password\",\n  \"role\": \"Candidate\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Register - Duplicate Email (should fail)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Rejects duplicate email', function() { pm.response.to.have.status(409); });"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\",\n  \"firstName\": \"Duplicate\",\n  \"lastName\": \"User\",\n  \"role\": \"Candidate\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "register"]
+        }
       }
     },
     {
@@ -83,9 +181,7 @@
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"code\": \"123456\"\n}"
@@ -95,7 +191,7 @@
           "host": ["{{base_url}}"],
           "path": ["api", "auth", "verify-email"]
         },
-        "description": "Replace the code with the actual 6-digit code from the verification email or from the database."
+        "description": "Replace the code with the actual 6-digit code from the verification email."
       }
     },
     {
@@ -104,18 +200,14 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.test('Returns 204', function() { pm.response.to.have.status(204); });"
-            ],
+            "exec": ["pm.test('Returns 204', function() { pm.response.to.have.status(204); });"],
             "type": "text/javascript"
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"candidate@test.com\"\n}"
@@ -128,127 +220,7 @@
       }
     },
     {
-      "name": "Register - Employer",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "if (pm.response.code === 200) {",
-              "    var json = pm.response.json();",
-              "    pm.test('Requires email verification', function() { pm.expect(json.requiresEmailVerification).to.be.true; });",
-              "    pm.test('Role is Employer', function() { pm.expect(json.role).to.eql('Employer'); });",
-              "}"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"TestPass1\",\n  \"fullName\": \"Acme Corp HR\",\n  \"role\": \"Employer\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/api/auth/register",
-          "host": ["{{base_url}}"],
-          "path": ["api", "auth", "register"]
-        }
-      }
-    },
-    {
-      "name": "Register - Admin (should fail)",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Rejects Admin role', function() { pm.response.to.have.status(400); });"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"TestPass1\",\n  \"fullName\": \"Admin User\",\n  \"role\": \"Admin\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/api/auth/register",
-          "host": ["{{base_url}}"],
-          "path": ["api", "auth", "register"]
-        }
-      }
-    },
-    {
-      "name": "Register - Weak Password (should fail)",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Rejects weak password', function() { pm.response.to.have.status(400); });"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"email\": \"weak@test.com\",\n  \"password\": \"123\",\n  \"fullName\": \"Weak Password\",\n  \"role\": \"Candidate\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/api/auth/register",
-          "host": ["{{base_url}}"],
-          "path": ["api", "auth", "register"]
-        }
-      }
-    },
-    {
-      "name": "Register - Duplicate Email (should fail)",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Rejects duplicate email', function() { pm.response.to.have.status(409); });"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\",\n  \"fullName\": \"Duplicate\",\n  \"role\": \"Candidate\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/api/auth/register",
-          "host": ["{{base_url}}"],
-          "path": ["api", "auth", "register"]
-        }
-      }
-    },
-    {
-      "name": "Login - Valid",
+      "name": "Login",
       "event": [
         {
           "listen": "test",
@@ -271,9 +243,7 @@
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"TestPass1\"\n}"
@@ -291,18 +261,14 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.test('Returns 401', function() { pm.response.to.have.status(401); });"
-            ],
+            "exec": ["pm.test('Returns 401', function() { pm.response.to.have.status(401); });"],
             "type": "text/javascript"
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"password\": \"WrongPassword1\"\n}"
@@ -320,18 +286,14 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.test('Returns 401', function() { pm.response.to.have.status(401); });"
-            ],
+            "exec": ["pm.test('Returns 401', function() { pm.response.to.have.status(401); });"],
             "type": "text/javascript"
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"nobody@test.com\",\n  \"password\": \"TestPass1\"\n}"
@@ -344,7 +306,7 @@
       }
     },
     {
-      "name": "Get Current User (authenticated)",
+      "name": "Get Current User",
       "event": [
         {
           "listen": "test",
@@ -363,9 +325,7 @@
       ],
       "request": {
         "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{token}}" }
-        ],
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
         "url": {
           "raw": "{{base_url}}/api/auth/me",
           "host": ["{{base_url}}"],
@@ -379,9 +339,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.test('Returns 401', function() { pm.response.to.have.status(401); });"
-            ],
+            "exec": ["pm.test('Returns 401', function() { pm.response.to.have.status(401); });"],
             "type": "text/javascript"
           }
         }
@@ -402,9 +360,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.test('Returns 204', function() { pm.response.to.have.status(204); });"
-            ],
+            "exec": ["pm.test('Returns 204', function() { pm.response.to.have.status(204); });"],
             "type": "text/javascript"
           }
         }
@@ -432,9 +388,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.test('Returns 204', function() { pm.response.to.have.status(204); });"
-            ],
+            "exec": ["pm.test('Returns 204', function() { pm.response.to.have.status(204); });"],
             "type": "text/javascript"
           }
         }
@@ -475,9 +429,7 @@
       ],
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"candidate@test.com\",\n  \"code\": \"123456\"\n}"
@@ -487,7 +439,7 @@
           "host": ["{{base_url}}"],
           "path": ["api", "auth", "verify-2fa"]
         },
-        "description": "Get the actual code from docker logs: docker-compose logs auth-service | grep '2FA code'"
+        "description": "Replace the code with the actual 6-digit code from your email or service logs."
       }
     }
   ]
