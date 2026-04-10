@@ -1,7 +1,7 @@
 import { SkillBadge } from "./SkillBadge";
 
 interface Skill {
-  name: string;
+  skillName: string;
   importanceLevel?: string;
   proficiencyLevel?: string;
   skillId?: string;
@@ -22,7 +22,7 @@ export function SkillBadgeList({ skills, max, className }: SkillBadgeListProps) 
       {visible.map((skill, i) => (
         <SkillBadge
           key={skill.skillId ?? i}
-          name={skill.name}
+          name={skill.skillName}
           importanceLevel={skill.importanceLevel}
           proficiencyLevel={skill.proficiencyLevel}
         />

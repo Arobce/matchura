@@ -36,7 +36,7 @@ export function ResumeCard({ resume }: ResumeCardProps) {
               <h3 className="text-sm font-semibold text-on-surface mb-2">Extracted Skills</h3>
               <SkillBadgeList
                 skills={resume.parsedData.skills.map((s) => ({
-                  name: s.name,
+                  skillName: s.name,
                   proficiencyLevel: s.proficiencyLevel,
                 }))}
               />

@@ -52,8 +52,8 @@ export interface EmployerProfile {
 
 export interface JobSkill {
   skillId: string;
-  name: string;
-  category: string;
+  skillName: string;
+  skillCategory: string;
   importanceLevel: string;
 }
 
@@ -96,8 +96,8 @@ export interface JobListResponse {
 
 export interface Skill {
   skillId: string;
-  name: string;
-  category: string;
+  skillName: string;
+  skillCategory: string;
 }
 
 // ── Applications ──

@@ -88,7 +88,7 @@ export default function CreateJobPage() {
   };
 
   const getSkillName = (skillId: string) =>
-    allSkills.find((s) => s.skillId === skillId)?.name || skillId;
+    allSkills.find((s) => s.skillId === skillId)?.skillName || skillId;
 
   return (
     <>
@@ -181,14 +181,14 @@ export default function CreateJobPage() {
                   onChange={(value) => setSelectedSkillId(value)}
                   onCreateNew={async (name) => {
                     try {
-                      const created = await api.post<Skill>("/api/skills", { name, category: "General" });
+                      const created = await api.post<Skill>("/api/skills", { skillName: name, skillCategory: "General" });
                       setAllSkills((prev) => [...prev, created]);
                       setSelectedSkillId(created.skillId);
                     } catch (err) {
                       setError(err instanceof Error ? err.message : "Failed to create skill");
                     }
                   }}
-                  options={allSkills.map((s) => ({ value: s.skillId, label: s.name }))}
+                  options={allSkills.map((s) => ({ value: s.skillId, label: s.skillName }))}
                   placeholder="Search or type a new skill..."
                 />
               </div>
