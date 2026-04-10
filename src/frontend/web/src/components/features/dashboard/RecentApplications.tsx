@@ -31,7 +31,7 @@ export function RecentApplications({ applications, loading }: RecentApplications
                   href={`/jobs/${app.jobId}`}
                   className="text-on-surface font-semibold text-lg hover:text-primary transition-colors"
                 >
-                  Job: {app.jobId.slice(0, 8)}...
+                  {app.jobTitle || `Job: ${app.jobId.slice(0, 8)}...`}
                 </Link>
                 <span className="text-on-surface-variant text-sm">
                   Applied {formatDate(app.appliedAt)}

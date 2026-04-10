@@ -6,9 +6,10 @@ import { ChevronRight } from "lucide-react";
 
 interface TopMatchesProps {
   matches: MatchScoreResponse[];
+  jobTitleMap?: Map<string, string>;
 }
 
-export function TopMatches({ matches }: TopMatchesProps) {
+export function TopMatches({ matches, jobTitleMap }: TopMatchesProps) {
   return (
     <Card variant="high" padding="md" className="rounded-2xl">
       <div className="flex justify-between items-center mb-6">
@@ -28,7 +29,7 @@ export function TopMatches({ matches }: TopMatchesProps) {
               <ScoreDisplay score={match.overallScore} size="md" />
               <div className="flex-1">
                 <p className="text-on-surface font-bold text-base leading-tight">
-                  Job: {match.jobId.slice(0, 8)}...
+                  {jobTitleMap?.get(match.jobId) || `Job: ${match.jobId.slice(0, 8)}...`}
                 </p>
                 <p className="text-on-surface-variant text-xs">
                   Skills: {match.skillScore}% | Exp: {match.experienceScore}%
