@@ -4,6 +4,10 @@ An intelligent job matching platform built on a microservices architecture that 
 
 ## Screenshots
 
+### Railway Production Architecture
+![Railway Architecture](screenshots/railway-architecture.png)
+All 11 services deployed and running on Railway: 7 microservices, frontend, API gateway, PostgreSQL, Redis, and RabbitMQ.
+
 ### AI Match Scoring
 ![Match Score](screenshots/match-score.png)
 Candidates and employers see a detailed match breakdown with overall score, skill/experience/education sub-scores, strengths, and gaps.
