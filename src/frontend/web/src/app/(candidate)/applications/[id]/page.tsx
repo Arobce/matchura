@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { PageContainer, Spinner, Button, Alert } from "@/components/ui";
 import { StatusBadge, ScoreBreakdown } from "@/components/composed";
@@ -11,7 +11,7 @@ import { useNotificationStore } from "@/stores";
 import { formatDate } from "@/lib/utils";
 import { ArrowLeft, Download, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
-import type { Application, Job, MatchScoreResponse } from "@/lib/types";
+import type { Application, Job, MatchScoreResponse, MatchListResponse } from "@/lib/types";
 
 export default function ApplicationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -22,6 +22,17 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
   const [matchScore, setMatchScore] = useState<MatchScoreResponse | null>(null);
   const [computing, setComputing] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
+
+  // Auto-load existing match score
+  useEffect(() => {
+    if (!application) return;
+    api.get<MatchListResponse>("/api/matching/candidate/me/jobs?pageSize=100")
+      .then((data) => {
+        const existing = data.items.find((m) => m.jobId === application.jobId);
+        if (existing) setMatchScore(existing);
+      })
+      .catch(() => {});
+  }, [application]);
 
   const computeMatch = async () => {
     if (!application) return;
