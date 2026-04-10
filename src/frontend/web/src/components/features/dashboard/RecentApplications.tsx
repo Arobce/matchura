@@ -28,7 +28,7 @@ export function RecentApplications({ applications, loading }: RecentApplications
             >
               <div className="flex flex-col">
                 <Link
-                  href={`/jobs/${app.jobId}`}
+                  href={`/applications/${app.applicationId}`}
                   className="text-on-surface font-semibold text-lg hover:text-primary transition-colors"
                 >
                   {app.jobTitle || `Job: ${app.jobId.slice(0, 8)}...`}
