@@ -1,4 +1,5 @@
 export { DragDropZone } from "./DragDropZone";
+export { PdfViewer } from "./PdfViewer";
 export { JobMeta } from "./JobMeta";
 export { QuickActionCard } from "./QuickActionCard";
 export { RoleToggle } from "./RoleToggle";

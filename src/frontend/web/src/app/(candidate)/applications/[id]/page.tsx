@@ -3,13 +3,13 @@
 import { use, useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { PageContainer, Spinner, Button, Alert } from "@/components/ui";
-import { StatusBadge, ScoreBreakdown } from "@/components/composed";
+import { StatusBadge, ScoreBreakdown, PdfViewer } from "@/components/composed";
 import { JobHeader } from "@/components/features/jobs";
 import { useApi } from "@/hooks/useApi";
 import { api } from "@/lib/api";
 import { useNotificationStore } from "@/stores";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, Download, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { Application, Job, MatchScoreResponse, MatchListResponse } from "@/lib/types";
 
@@ -44,26 +44,6 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
       addNotification({ type: "error", message: "Failed to compute match score" });
     } finally {
       setComputing(false);
-    }
-  };
-
-  const handleDownloadResume = async () => {
-    if (!application?.resumeUrl) return;
-    try {
-      const result = await api.get<{ downloadUrl: string }>(`/api/resumes/${application.resumeUrl}/download`);
-      window.open(result.downloadUrl, "_blank");
-    } catch {
-      addNotification({ type: "error", message: "Failed to download resume" });
-    }
-  };
-
-  const handleDownloadCoverLetter = async () => {
-    if (!application?.coverLetterUrl) return;
-    try {
-      const result = await api.get<{ downloadUrl: string }>(`/api/documents/download?key=${encodeURIComponent(application.coverLetterUrl)}`);
-      window.open(result.downloadUrl, "_blank");
-    } catch {
-      addNotification({ type: "error", message: "Failed to download cover letter" });
     }
   };
 
@@ -133,48 +113,24 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
 
         {/* Resume & Cover Letter */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Resume */}
           <div className="bg-surface-container-lowest rounded-xl editorial-shadow p-6 space-y-4">
             <h3 className="text-lg font-bold text-on-surface">Resume</h3>
             {application.resumeUrl ? (
-              <button
-                onClick={handleDownloadResume}
-                className="flex items-center gap-3 w-full p-4 rounded-lg border border-outline-variant/20 hover:border-primary/30 hover:bg-primary-container/5 transition-all text-left"
-              >
-                <FileText className="h-8 w-8 text-primary shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-on-surface">Attached Resume</p>
-                  <p className="text-xs text-on-surface-variant">Click to download PDF</p>
-                </div>
-                <Download className="h-5 w-5 text-on-surface-variant" />
-              </button>
+              <PdfViewer url={application.resumeUrl} label="Resume" type="resume" />
             ) : (
               <p className="text-sm text-on-surface-variant">No resume attached</p>
             )}
           </div>
 
-          {/* Cover Letter */}
           <div className="bg-surface-container-lowest rounded-xl editorial-shadow p-6 space-y-4">
             <h3 className="text-lg font-bold text-on-surface">Cover Letter</h3>
-            {application.coverLetterUrl && (
-              <button
-                onClick={handleDownloadCoverLetter}
-                className="flex items-center gap-3 w-full p-4 rounded-lg border border-outline-variant/20 hover:border-primary/30 hover:bg-primary-container/5 transition-all text-left"
-              >
-                <FileText className="h-8 w-8 text-primary shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-on-surface">Cover Letter PDF</p>
-                  <p className="text-xs text-on-surface-variant">Click to download PDF</p>
-                </div>
-                <Download className="h-5 w-5 text-on-surface-variant" />
-              </button>
-            )}
-            {application.coverLetter && (
+            {application.coverLetterUrl ? (
+              <PdfViewer url={application.coverLetterUrl} label="Cover Letter" type="coverLetter" />
+            ) : application.coverLetter ? (
               <div className="bg-surface-container-low rounded-lg p-4 text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">
                 {application.coverLetter}
               </div>
-            )}
-            {!application.coverLetterUrl && !application.coverLetter && (
+            ) : (
               <p className="text-sm text-on-surface-variant">No cover letter provided</p>
             )}
           </div>
