@@ -109,3 +109,4 @@ jobs:
         with:
           projects: matchura-services matchura-frontend
           environment: production
+          ignore_missing: true
