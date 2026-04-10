@@ -11,10 +11,15 @@ interface PdfViewerProps {
   type: "resume" | "coverLetter";
 }
 
+function isPdf(url: string): boolean {
+  return url.toLowerCase().endsWith(".pdf");
+}
+
 export function PdfViewer({ url, label, type }: PdfViewerProps) {
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const canEmbed = isPdf(url);
 
   useEffect(() => {
     const fetchUrl = async () => {
@@ -25,15 +30,19 @@ export function PdfViewer({ url, label, type }: PdfViewerProps) {
         } else {
           result = await api.get<{ downloadUrl: string }>(`/api/documents/download?key=${encodeURIComponent(url)}`);
         }
-        setPdfUrl(result.downloadUrl);
+        setFileUrl(result.downloadUrl);
       } catch {
         setError(true);
       } finally {
         setLoading(false);
       }
     };
-    fetchUrl();
-  }, [url, type]);
+    if (canEmbed) {
+      fetchUrl();
+    } else {
+      setLoading(false);
+    }
+  }, [url, type, canEmbed]);
 
   if (loading) {
     return (
@@ -43,7 +52,39 @@ export function PdfViewer({ url, label, type }: PdfViewerProps) {
     );
   }
 
-  if (error || !pdfUrl) {
+  if (!canEmbed) {
+    const fileName = url.split("/").pop() || label;
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-lg border border-outline-variant/20 bg-surface-container-low">
+        <FileText className="h-8 w-8 text-primary shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-on-surface truncate">{fileName}</p>
+          <p className="text-xs text-on-surface-variant">
+            This file type can&apos;t be previewed in the browser
+          </p>
+        </div>
+        <button
+          onClick={async () => {
+            try {
+              let result: { downloadUrl: string };
+              if (type === "resume") {
+                result = await api.get<{ downloadUrl: string }>(`/api/resumes/${url}/download`);
+              } else {
+                result = await api.get<{ downloadUrl: string }>(`/api/documents/download?key=${encodeURIComponent(url)}`);
+              }
+              window.open(result.downloadUrl, "_blank");
+            } catch { /* ignore */ }
+          }}
+          className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-primary bg-primary-container/10 rounded-lg hover:bg-primary-container/20 transition-colors"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Download
+        </button>
+      </div>
+    );
+  }
+
+  if (error || !fileUrl) {
     return (
       <div className="flex items-center justify-center h-32 bg-surface-container-low rounded-lg">
         <p className="text-sm text-on-surface-variant">Failed to load {label.toLowerCase()}</p>
@@ -55,13 +96,13 @@ export function PdfViewer({ url, label, type }: PdfViewerProps) {
     <div className="space-y-2">
       <div className="rounded-lg border border-outline-variant/20 overflow-hidden bg-surface-container-low">
         <iframe
-          src={pdfUrl}
+          src={fileUrl}
           title={label}
           className="w-full h-[500px]"
         />
       </div>
       <a
-        href={pdfUrl}
+        href={fileUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 text-xs text-primary hover:underline"
