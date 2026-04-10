@@ -6,11 +6,11 @@ const API_BASE = 'http://localhost:5010'
 const AUTH_SERVICE = 'http://localhost:5001'
 const JOB_SERVICE = 'http://localhost:5003'
 const PG_CONNECTION = {
-  host: 'localhost',
-  port: 5433,
-  database: 'auth_db',
-  user: 'matchura_admin',
-  password: 'REDACTED',
+  host: process.env.PG_HOST ?? 'localhost',
+  port: Number(process.env.PG_PORT ?? '5433'),
+  database: process.env.PG_DATABASE ?? 'auth_db',
+  user: process.env.POSTGRES_USER ?? '',
+  password: process.env.POSTGRES_PASSWORD ?? '',
 }
 
 function uniqueEmail(prefix: string): string {

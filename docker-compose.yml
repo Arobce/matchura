@@ -34,8 +34,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: matchura
-      RABBITMQ_DEFAULT_PASS: matchura_dev
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -45,8 +45,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@matchura.dev
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@matchura.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
     ports:
       - "5050:80"
     depends_on:
@@ -108,8 +108,8 @@ services:
       JWT_AUDIENCE: ${JWT_AUDIENCE}
       REDIS_CONNECTION: ${REDIS_CONNECTION}
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: matchura
-      RABBITMQ_PASS: matchura_dev
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
       SENTRY_DSN: ${SENTRY_DSN_BACKEND}
     ports:
       - "5003:8080"
@@ -135,8 +135,8 @@ services:
       REDIS_CONNECTION: ${REDIS_CONNECTION}
       JOB_SERVICE_URL: "http://job-service:8080"
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: matchura
-      RABBITMQ_PASS: matchura_dev
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
       SENTRY_DSN: ${SENTRY_DSN_BACKEND}
     ports:
       - "5004:8080"
@@ -171,8 +171,8 @@ services:
       APPLICATION_SERVICE_URL: "http://application-service:8080"
       PROFILE_SERVICE_URL: "http://profile-service:8080"
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: matchura
-      RABBITMQ_PASS: matchura_dev
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
       SENTRY_DSN: ${SENTRY_DSN_BACKEND}
     ports:
       - "5005:8080"
@@ -202,8 +202,8 @@ services:
       REDIS_CONNECTION: ${REDIS_CONNECTION}
       JOB_SERVICE_URL: "http://job-service:8080"
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: matchura
-      RABBITMQ_PASS: matchura_dev
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
       SENTRY_DSN: ${SENTRY_DSN_BACKEND}
     ports:
       - "5006:8080"

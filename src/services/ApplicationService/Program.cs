@@ -18,7 +18,7 @@ builder.AddMatchuraSentry(ServiceNames.Application);
 // Database
 var connectionString = builder.Configuration["DATABASE_URL"]
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Database=application_db;Username=matchura_admin;Password=REDACTED";
+    ?? throw new InvalidOperationException("DATABASE_URL or ConnectionStrings:DefaultConnection must be configured");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
