@@ -34,7 +34,9 @@ public class JobServiceImpl : IJobService
             ExperienceRequired = request.ExperienceRequired,
             SalaryMin = request.SalaryMin,
             SalaryMax = request.SalaryMax,
-            ApplicationDeadline = request.ApplicationDeadline,
+            ApplicationDeadline = request.ApplicationDeadline.HasValue
+                ? DateTime.SpecifyKind(request.ApplicationDeadline.Value, DateTimeKind.Utc)
+                : null,
             JobStatus = JobStatus.Draft
         };
 
@@ -81,7 +83,9 @@ public class JobServiceImpl : IJobService
         job.ExperienceRequired = request.ExperienceRequired;
         job.SalaryMin = request.SalaryMin;
         job.SalaryMax = request.SalaryMax;
-        job.ApplicationDeadline = request.ApplicationDeadline;
+        job.ApplicationDeadline = request.ApplicationDeadline.HasValue
+            ? DateTime.SpecifyKind(request.ApplicationDeadline.Value, DateTimeKind.Utc)
+            : null;
         job.UpdatedAt = DateTime.UtcNow;
 
         // Replace skills
