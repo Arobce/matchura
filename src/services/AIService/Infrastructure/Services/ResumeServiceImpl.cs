@@ -42,15 +42,17 @@ public class ResumeServiceImpl : IResumeService
         using var buffer = new MemoryStream();
         await fileStream.CopyToAsync(buffer);
 
+        var resumeId = Guid.NewGuid();
         var resume = new Resume
         {
+            ResumeId = resumeId,
             CandidateId = candidateId,
             OriginalFileName = fileName,
             ContentType = contentType,
             ParseStatus = ParseStatus.Extracting
         };
 
-        var s3Key = $"resumes/{candidateId}/{resume.ResumeId}/{fileName}";
+        var s3Key = $"resumes/{candidateId}/{resumeId}/{fileName}";
         resume.FileUrl = s3Key;
 
         _db.Resumes.Add(resume);
