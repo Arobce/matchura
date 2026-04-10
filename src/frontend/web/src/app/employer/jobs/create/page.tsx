@@ -79,6 +79,7 @@ export default function CreateJobPage() {
         location: form.location || undefined,
       };
       const job = await api.post<{ jobId: string }>("/api/jobs", payload);
+      await api.patch(`/api/jobs/${job.jobId}/status`, { status: "Active" });
       router.push(`/jobs/${job.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create job");
