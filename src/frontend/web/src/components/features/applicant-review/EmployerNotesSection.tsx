@@ -12,14 +12,16 @@ interface EmployerNotesSectionProps {
 
 export function EmployerNotesSection({ applicationId, initialNotes }: EmployerNotesSectionProps) {
   const [notes, setNotes] = useState(initialNotes);
+  const [savedNotes, setSavedNotes] = useState(initialNotes);
   const [saving, setSaving] = useState(false);
   const { addNotification } = useNotificationStore();
-  const isDirty = notes !== initialNotes;
+  const isDirty = notes !== savedNotes;
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.patch(`/api/applications/${applicationId}/notes`, { employerNotes: notes });
+      await api.patch(`/api/applications/${applicationId}/notes`, { notes });
+      setSavedNotes(notes);
       addNotification({ type: "success", message: "Notes saved" });
     } catch {
       addNotification({ type: "error", message: "Failed to save notes" });
