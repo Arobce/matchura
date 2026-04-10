@@ -9,7 +9,7 @@ namespace AIService.API.Controllers;
 
 [ApiController]
 [Route("api/documents")]
-[Authorize(Roles = "Candidate")]
+[Authorize]
 public class DocumentController : ControllerBase
 {
     private readonly IS3StorageService _s3;
@@ -25,6 +25,7 @@ public class DocumentController : ControllerBase
     /// Upload a PDF document (e.g. cover letter), store in S3, and extract text.
     /// </summary>
     [HttpPost("upload")]
+    [Authorize(Roles = "Candidate")]
     public async Task<IActionResult> Upload(IFormFile file)
     {
         if (file == null || file.Length == 0)

@@ -9,7 +9,7 @@ namespace AIService.API.Controllers;
 
 [ApiController]
 [Route("api/resumes")]
-[Authorize(Roles = "Candidate")]
+[Authorize]
 public class ResumeController : ControllerBase
 {
     private readonly IResumeService _resumeService;
@@ -22,6 +22,7 @@ public class ResumeController : ControllerBase
     }
 
     [HttpPost("upload")]
+    [Authorize(Roles = "Candidate")]
     public async Task<IActionResult> Upload(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -43,6 +44,7 @@ public class ResumeController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Candidate")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var candidateId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -60,6 +62,7 @@ public class ResumeController : ControllerBase
     }
 
     [HttpGet("{id:guid}/status")]
+    [Authorize(Roles = "Candidate")]
     public async Task<IActionResult> GetStatus(Guid id)
     {
         var candidateId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -77,6 +80,7 @@ public class ResumeController : ControllerBase
     }
 
     [HttpGet("me")]
+    [Authorize(Roles = "Candidate")]
     public async Task<IActionResult> GetMyResumes()
     {
         var candidateId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
